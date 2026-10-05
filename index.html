@@ -17,14 +17,18 @@ main{max-width:1100px;margin:0 auto;padding:clamp(40px,10vh,110px) clamp(16px,5v
 h1{font-family:var(--display);font-variation-settings:"wdth" 125;font-weight:800;text-transform:uppercase;font-size:clamp(2.4rem,7vw,5.6rem);line-height:.98;margin:.3em 0 .4em;text-wrap:balance}
 h1 em{font-style:normal;color:var(--orange)}
 .lede{font:700 clamp(1.05rem,1.6vw,1.3rem)/1.35 var(--display);font-variation-settings:"wdth" 110;margin:0 0 2.4em;max-width:46ch}
+.nextl{font:600 .78rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--g8);margin:-1.6em 0 1.6em}
+.nextl b{color:var(--orange);font-weight:600}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .card{display:grid;gap:.5em;align-content:start;background:var(--ink);padding:22px;color:var(--white);text-decoration:none;border:2px solid transparent;min-height:190px}
 .card:hover,.card:focus-visible{border-color:var(--orange);outline:none}
 .card small{font:600 .7rem var(--mono);letter-spacing:.12em;color:var(--orange);text-transform:uppercase}
 .card b{font:800 1.4rem/1.05 var(--display);font-variation-settings:"wdth" 120;text-transform:uppercase}
 .card span{color:var(--g8)}
-.card.soon{opacity:.5;pointer-events:none;min-height:150px}
-.card.soon small{color:var(--g8)}
+.card.soon{pointer-events:none;min-height:150px}
+.card.soon b,.card.soon span{color:var(--g6)}
+.card.soon b{color:#9a9a9a}
+.cd{color:var(--orange);font-variant-numeric:tabular-nums}
 .calbox{margin-top:2.4em;background:var(--ink);padding:22px;max-width:720px}
 .lbl{font:600 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--g8)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -51,27 +55,28 @@ footer{margin-top:3em;font:400 .75rem var(--mono);color:var(--g6)}
   <div class="eyebrow">AA 2627 · 21V0-ABTEC38 - EDI 2</div>
   <h1>Product <em>Mapping</em></h1>
   <p class="lede">Elaborazione Digitale dell'Immagine 2 · Docente Corrado Santoro.</p>
+  <p class="nextl" id="nextl"></p>
   <div class="cards">
     <a class="card" href="programma/index.html"><small>Programma</small><b>Programma del corso</b><span>Obiettivi, 15 settimane, prove d'esame e scadenze.</span></a>
     <a class="card" href="lezione-01/index.html"><small>Lezione 01</small><b>Dal Monitor allo Spazio</b><span>Il nero ottico, tre case study, il brief e i vincoli dell'oggetto.</span></a>
-    <div class="card soon" aria-disabled="true"><small>Lezione 02 · in arrivo</small><b>Foto e Photoshop</b><span>Ripresa fotografica dell'oggetto e deformazione dell'immagine.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 03 · in arrivo</small><b>Animazione in After Effects</b><span>Importazione e animazione del file statico.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 04 · in arrivo</small><b>Tre stili di animazione</b><span>Wireframe, materiali e content.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 05 · in arrivo</small><b>Effetti e transizioni</b><span>Effetti, pattern e transizioni.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 06 · in arrivo</small><b>MadMapper</b><span>Applicazione visiva sull'oggetto.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 07 · in arrivo</small><b>Review a schermo</b><span>Laboratorio di revisione del filmato.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 08 · in arrivo</small><b>Mapping oggetti</b><span>Correzione di mapping e animazioni.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 09 · in arrivo</small><b>Color e proiezione</b><span>Color grading e proiezione.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 10 · in arrivo</small><b>Particellari e sound</b><span>Verifica del loop continuo e dell'audio.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 11 · in arrivo</small><b>Riprese e aftermovie</b><span>Documentazione video della proiezione.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 12 · in arrivo</small><b>Codec e Resolume Arena</b><span>Formati di esportazione e playback.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 13 · in arrivo</small><b>Test mapping live 1</b><span>Primo test live e shooting.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 14 · in arrivo</small><b>Test mapping live 2</b><span>Secondo test live e shooting.</span></div>
-    <div class="card soon" aria-disabled="true"><small>Lezione 15 · in arrivo</small><b>Visione dei progetti</b><span>Visione di tutti i progetti.</span></div>
+    <div class="card lesson" data-open="2026-10-16T00:00:00+02:00" aria-disabled="true"><small>Lezione 02 <span class="cd"></span></small><b>Dall'oggetto al file</b><span>Ripresa fotografica dell'oggetto, deformazione e tracciati in Photoshop.</span></div>
+    <div class="card lesson" data-open="2026-10-23T00:00:00+02:00" aria-disabled="true"><small>Lezione 03 <span class="cd"></span></small><b>Animazione in After Effects</b><span>Importazione e animazione del file statico.</span></div>
+    <div class="card lesson" data-open="2026-10-28T00:00:00+01:00" aria-disabled="true"><small>Lezione 04 <span class="cd"></span></small><b>Tre stili di animazione</b><span>Wireframe, materiali e content.</span></div>
+    <div class="card lesson" data-open="2026-11-04T00:00:00+01:00" aria-disabled="true"><small>Lezione 05 <span class="cd"></span></small><b>Effetti e transizioni</b><span>Effetti, pattern e transizioni.</span></div>
+    <div class="card lesson" data-open="2026-11-11T00:00:00+01:00" aria-disabled="true"><small>Lezione 06 <span class="cd"></span></small><b>MadMapper</b><span>Applicazione visiva sull'oggetto.</span></div>
+    <div class="card lesson" data-open="2026-11-18T00:00:00+01:00" aria-disabled="true"><small>Lezione 07 <span class="cd"></span></small><b>Review a schermo</b><span>Laboratorio di revisione del filmato.</span></div>
+    <div class="card lesson" data-open="2026-11-25T00:00:00+01:00" aria-disabled="true"><small>Lezione 08 <span class="cd"></span></small><b>Mapping oggetti</b><span>Correzione di mapping e animazioni.</span></div>
+    <div class="card lesson" data-open="2026-12-02T00:00:00+01:00" aria-disabled="true"><small>Lezione 09 <span class="cd"></span></small><b>Color e proiezione</b><span>Color grading e proiezione.</span></div>
+    <div class="card lesson" data-open="2026-12-09T00:00:00+01:00" aria-disabled="true"><small>Lezione 10 <span class="cd"></span></small><b>Particellari e sound</b><span>Verifica del loop continuo e dell'audio.</span></div>
+    <div class="card lesson" data-open="2026-12-16T00:00:00+01:00" aria-disabled="true"><small>Lezione 11 <span class="cd"></span></small><b>Riprese e aftermovie</b><span>Documentazione video della proiezione.</span></div>
+    <div class="card lesson" data-open="2027-01-07T00:00:00+01:00" aria-disabled="true"><small>Lezione 12 <span class="cd"></span></small><b>Codec e Resolume Arena</b><span>Formati di esportazione e playback.</span></div>
+    <div class="card lesson" data-open="2027-01-13T00:00:00+01:00" aria-disabled="true"><small>Lezione 13 <span class="cd"></span></small><b>Test mapping live 1</b><span>Primo test live e shooting.</span></div>
+    <div class="card lesson" data-open="2027-01-20T00:00:00+01:00" aria-disabled="true"><small>Lezione 14 <span class="cd"></span></small><b>Test mapping live 2</b><span>Secondo test live e shooting.</span></div>
+    <div class="card lesson" data-open="2027-01-27T00:00:00+01:00" aria-disabled="true"><small>Lezione 15 <span class="cd"></span></small><b>Visione dei progetti</b><span>Visione di tutti i progetti.</span></div>
   </div>
   <section class="calbox">
 <div class="calsub">
-  <div class="lbl">Calendario delle scadenze · con promemoria</div>
+  <div class="lbl">Calendario delle lezioni e delle scadenze</div>
   <div class="seg calos" role="group" aria-label="Dispositivo">
     <button type="button" data-os="mac" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>Mac</button>
     <button type="button" data-os="ios" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>iPhone</button>
@@ -82,7 +87,7 @@ footer{margin-top:3em;font:400 .75rem var(--mono);color:var(--g6)}
     <ol>
       <li>Si apre l'app Calendario: conferma l'iscrizione.</li>
       <li>Nella finestra successiva togli la spunta da "Rimuovi: Avvisi" e imposta l'aggiornamento automatico su "Ogni giorno".</li>
-      <li>Clicca OK. I promemoria arrivano una settimana prima, due giorni prima e il giorno stesso alle 9:00.</li>
+      <li>Clicca OK. Ogni scadenza ha tre promemoria: una settimana prima, due giorni prima e il giorno stesso alle 9:00.</li>
     </ol>
   </div>
   <div class="calpane" data-pane="ios" hidden>
@@ -90,14 +95,14 @@ footer{margin-top:3em;font:400 .75rem var(--mono);color:var(--g6)}
     <ol>
       <li>Apri questa pagina con Safari e tocca il pulsante.</li>
       <li>Tocca "Iscriviti", poi "Fine". Se compare l'opzione "Rimuovi avvisi", lasciala disattivata.</li>
-      <li>Il calendario "EDI 2 · Scadenze" compare nell'app Calendario con i promemoria alle 9:00.</li>
+      <li>Il calendario "EDI 2 · Lezioni e scadenze" compare nell'app Calendario, con i promemoria delle scadenze alle 9:00.</li>
     </ol>
   </div>
   <div class="calpane" data-pane="android" hidden>
     <a class="btn cta" data-cal="google" href="https://calendar.google.com/" target="_blank" rel="noopener">Iscriviti su Android</a>
     <ol>
       <li>Si apre Google Calendar nel browser: conferma "Aggiungi". Se la richiesta non compare, attiva "Sito desktop" dal menu del browser e tocca di nuovo il pulsante.</li>
-      <li>Nell'app Google Calendar apri Menu → Impostazioni → "EDI 2 · Scadenze" e attiva la sincronizzazione.</li>
+      <li>Nell'app Google Calendar apri Menu → Impostazioni → "EDI 2 · Lezioni e scadenze" e attiva la sincronizzazione.</li>
       <li>Nella stessa schermata imposta le notifiche per gli eventi di tutto il giorno: 1 settimana prima, 2 giorni prima e il giorno stesso, alle 9:00. Google non importa gli avvisi da solo.</li>
     </ol>
   </div>
@@ -109,6 +114,31 @@ footer{margin-top:3em;font:400 .75rem var(--mono);color:var(--g6)}
 <script>
 (() => {
   const CAL_REL = 'calendario/edi2-scadenze.ics';
+  const LESSONS = [["2026-10-07T12:00:00+00:00", "2026-10-07T16:15:00+00:00", "Aula 3"], ["2026-10-16T12:00:00+00:00", "2026-10-16T16:15:00+00:00", "Aula 3"], ["2026-10-23T12:00:00+00:00", "2026-10-23T16:15:00+00:00", "Aula 3"], ["2026-10-28T13:00:00+00:00", "2026-10-28T17:15:00+00:00", "Aula 3"], ["2026-11-04T13:00:00+00:00", "2026-11-04T17:15:00+00:00", "Aula 3"], ["2026-11-11T13:00:00+00:00", "2026-11-11T15:00:00+00:00", "Aula 3"], ["2026-11-18T13:00:00+00:00", "2026-11-18T15:00:00+00:00", "Aula 3"], ["2026-11-25T15:15:00+00:00", "2026-11-25T17:15:00+00:00", "Aula 3"], ["2026-12-02T13:00:00+00:00", "2026-12-02T15:00:00+00:00", "Aula 3"], ["2026-12-09T13:00:00+00:00", "2026-12-09T15:00:00+00:00", "Aula 3"], ["2026-12-16T13:00:00+00:00", "2026-12-16T15:00:00+00:00", "Aula 3"], ["2027-01-07T13:00:00+00:00", "2027-01-07T15:00:00+00:00", "Aula 3"], ["2027-01-13T13:00:00+00:00", "2027-01-13T17:15:00+00:00", "Aula 3"], ["2027-01-20T13:00:00+00:00", "2027-01-20T17:15:00+00:00", "Aula 3"], ["2027-01-27T13:00:00+00:00", "2027-01-27T15:00:00+00:00", "Aula 3"], ["2027-02-03T13:00:00+00:00", "2027-02-03T15:00:00+00:00", "Aula 3"], ["2027-02-09T15:15:00+00:00", "2027-02-09T17:15:00+00:00", "Aula 1"], ["2027-02-17T13:00:00+00:00", "2027-02-17T17:15:00+00:00", "Aula 3"]];
+  /* lezioni nascoste fino al giorno della lezione (solo sul sito pubblico; #anteprima per il docente) */
+  const pad = n => String(n).padStart(2, '0');
+  const lockOn = location.hostname.endsWith('github.io') && location.hash !== '#anteprima';
+  const cards = [...document.querySelectorAll('.card.lesson')];
+  function tickCards() {
+    const now = Date.now();
+    cards.forEach(c => {
+      const ms = new Date(c.dataset.open) - now, cd = c.querySelector('.cd'), hasPage = !!c.dataset.href;
+      if (ms > 0) {
+        const t = Math.floor(ms / 1000);
+        cd.textContent = '· tra ' + Math.floor(t / 86400) + 'g ' + pad(Math.floor(t % 86400 / 3600)) + ':' + pad(Math.floor(t % 3600 / 60)) + ':' + pad(t % 60);
+      } else cd.textContent = hasPage ? '' : '· in preparazione';
+      const locked = !hasPage || (lockOn && ms > 0);
+      c.classList.toggle('soon', locked);
+      if (hasPage) { if (locked) c.removeAttribute('href'); else c.setAttribute('href', c.dataset.href); }
+      c.setAttribute('aria-disabled', String(locked));
+    });
+  }
+  tickCards(); setInterval(tickCards, 1000);
+  const nl = LESSONS.find(l => new Date(l[1]) >= new Date());
+  if (nl) {
+    const a = new Date(nl[0]), b = new Date(nl[1]), h = d => d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Rome' });
+    document.getElementById('nextl').innerHTML = 'Prossima lezione: <b>' + a.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Rome' }) + ' · ' + h(a) + '–' + h(b) + ' · ' + nl[2] + '</b>';
+  }
   /* ---------- Iscrizione al calendario delle scadenze ---------- */
   (function calendar(rel) {
     let https = 'https://visualstudiolab.github.io/edi2/calendario/edi2-scadenze.ics';
