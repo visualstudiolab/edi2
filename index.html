@@ -25,7 +25,14 @@ h1 em{font-style:normal;color:var(--orange)}
 .card small{font:600 .7rem var(--mono);letter-spacing:.12em;color:var(--orange);text-transform:uppercase}
 .card b{font:800 1.4rem/1.05 var(--display);font-variation-settings:"wdth" 120;text-transform:uppercase}
 .card span{color:var(--g8)}
-.card.soon{pointer-events:none;min-height:150px}
+.card.soon{min-height:150px;cursor:default}
+.card{position:relative}
+.bigcd{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:.15em;padding:12px;background:rgba(0,0,0,.9);color:var(--orange);opacity:0;transition:opacity .2s;pointer-events:none;text-align:center;word-spacing:normal}
+.bigcd b{font:800 clamp(2.2rem,5vw,3.2rem)/1 var(--display);font-variation-settings:"wdth" 125;font-variant-numeric:tabular-nums}
+.bigcd span{font:600 1.05rem var(--mono);color:var(--orange);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+@media (hover:hover){.card.soon:hover .bigcd{opacity:1}}
+.card.soon.show .bigcd{opacity:1}
+.card.soon .bigcd b,.card.soon .bigcd span{color:var(--orange);text-transform:none}
 .card.soon b,.card.soon span{color:var(--g6)}
 .card.soon b{color:#9a9a9a}
 .cd{color:var(--orange);font-variant-numeric:tabular-nums}
@@ -54,7 +61,7 @@ body{word-spacing:.16em}
 .who b{word-spacing:.16em}
 #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.45}
 main{position:relative;z-index:1}
-.card{background:rgba(28,28,28,.55);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
+.card{background:rgba(28,28,28,.35);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
 .calbox{background:rgba(28,28,28,.92)}
 </style>
 </head>
@@ -127,14 +134,25 @@ main{position:relative;z-index:1}
   const pad = n => String(n).padStart(2, '0');
   const lockOn = location.hostname.endsWith('github.io') && location.hash !== '#anteprima';
   const cards = [...document.querySelectorAll('.card.lesson')];
+  cards.forEach(c => { const b = document.createElement('span'); b.className = 'bigcd'; b.setAttribute('aria-hidden', 'true'); c.appendChild(b); });
+  document.addEventListener('click', e => {
+    const c = e.target.closest('.card.soon');
+    cards.forEach(k => { if (k !== c) k.classList.remove('show'); });
+    if (c) c.classList.toggle('show');
+  });
   function tickCards() {
     const now = Date.now();
     cards.forEach(c => {
       const ms = new Date(c.dataset.open) - now, cd = c.querySelector('.cd'), hasPage = !!c.dataset.href;
+      const big = c.querySelector('.bigcd');
       if (ms > 0) {
-        const t = Math.floor(ms / 1000);
-        cd.textContent = '· tra ' + Math.floor(t / 86400) + 'g ' + pad(Math.floor(t % 86400 / 3600)) + ':' + pad(Math.floor(t % 3600 / 60)) + ':' + pad(t % 60);
-      } else cd.textContent = hasPage ? '' : '· in preparazione';
+        const t = Math.floor(ms / 1000), hms = pad(Math.floor(t % 86400 / 3600)) + ':' + pad(Math.floor(t % 3600 / 60)) + ':' + pad(t % 60);
+        cd.textContent = '· tra ' + Math.floor(t / 86400) + 'g ' + hms;
+        big.innerHTML = '<b>' + Math.floor(t / 86400) + 'g</b><span>' + hms + '</span>';
+      } else {
+        cd.textContent = hasPage ? '' : '· in preparazione';
+        big.innerHTML = '<span>In preparazione</span>';
+      }
       const locked = !hasPage || (lockOn && ms > 0);
       c.classList.toggle('soon', locked);
       if (hasPage) { if (locked) c.removeAttribute('href'); else c.setAttribute('href', c.dataset.href); }
