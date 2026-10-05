@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EDI 2 Product Mapping</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--black:#000;--ink:#1c1c1c;--g2:#2d2d2d;--g6:#666;--g8:#888;--white:#fff;--orange:#ff6900;
+  --display:"Archivo","Arial Black",system-ui,sans-serif;--body:"Bebas Neue","Arial Narrow",Impact,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--black);color:var(--white);font:400 1.3rem/1.2 var(--body);letter-spacing:.02em;-webkit-font-smoothing:antialiased}
+main{max-width:1100px;margin:0 auto;padding:clamp(40px,10vh,110px) clamp(16px,5vw,64px) 64px}
+.eyebrow{font:600 .72rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--g8)}
+h1{font-family:var(--display);font-variation-settings:"wdth" 125;font-weight:800;text-transform:uppercase;font-size:clamp(2.4rem,7vw,5.6rem);line-height:.98;margin:.3em 0 .4em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--orange)}
+.lede{font:700 clamp(1.05rem,1.6vw,1.3rem)/1.35 var(--display);font-variation-settings:"wdth" 110;margin:0 0 2.4em;max-width:46ch}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{display:grid;gap:.5em;align-content:start;background:var(--ink);padding:22px;color:var(--white);text-decoration:none;border:2px solid transparent;min-height:190px}
+.card:hover,.card:focus-visible{border-color:var(--orange);outline:none}
+.card small{font:600 .7rem var(--mono);letter-spacing:.12em;color:var(--orange);text-transform:uppercase}
+.card b{font:800 1.4rem/1.05 var(--display);font-variation-settings:"wdth" 120;text-transform:uppercase}
+.card span{color:var(--g8)}
+.card.soon{opacity:.5;pointer-events:none;min-height:150px}
+.card.soon small{color:var(--g8)}
+.calbox{margin-top:2.4em;background:var(--ink);padding:22px;max-width:720px}
+.lbl{font:600 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--g8)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:2px solid var(--g6);border-radius:999px;padding:.3em .95em;font-size:1.05rem;color:var(--white);text-decoration:none}
+.btn:hover{border-color:var(--white)}
+.btn.cta{background:var(--orange);border-color:var(--orange)}
+.hint{font:400 .78rem var(--mono);color:var(--g8);letter-spacing:0;margin:0}
+.calsub{display:grid;gap:10px}
+.calpane{display:grid;gap:10px;justify-items:start}
+.calpane[hidden]{display:none}
+.calpane ol{margin:0;padding-left:1.3em;display:grid;gap:.35em;font-size:1.05rem}
+.calurl{font-family:var(--mono);font-size:.72rem;overflow-wrap:anywhere;color:var(--white)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{background:transparent;border:2px solid var(--g6);border-radius:999px;padding:.25em .95em;font:inherit;color:var(--white);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--white);color:var(--black);border-color:var(--white)}
+.calpane ol{color:var(--g8)}
+footer{margin-top:3em;font:400 .75rem var(--mono);color:var(--g6)}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AA 2627 · 21V0-ABTEC38 - EDI 2</div>
+  <h1>Product <em>Mapping</em></h1>
+  <p class="lede">Elaborazione Digitale dell'Immagine 2 · Docente Corrado Santoro.</p>
+  <div class="cards">
+    <a class="card" href="programma/index.html"><small>Programma</small><b>Programma del corso</b><span>Obiettivi, 15 settimane, prove d'esame e scadenze.</span></a>
+    <a class="card" href="lezione-01/index.html"><small>Lezione 01</small><b>Dal Monitor allo Spazio</b><span>Il nero ottico, tre case study, il brief e i vincoli dell'oggetto.</span></a>
+    <div class="card soon" aria-disabled="true"><small>Lezione 02 · in arrivo</small><b>Foto e Photoshop</b><span>Ripresa fotografica dell'oggetto e deformazione dell'immagine.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 03 · in arrivo</small><b>Animazione in After Effects</b><span>Importazione e animazione del file statico.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 04 · in arrivo</small><b>Tre stili di animazione</b><span>Wireframe, materiali e content.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 05 · in arrivo</small><b>Effetti e transizioni</b><span>Effetti, pattern e transizioni.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 06 · in arrivo</small><b>MadMapper</b><span>Applicazione visiva sull'oggetto.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 07 · in arrivo</small><b>Review a schermo</b><span>Laboratorio di revisione del filmato.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 08 · in arrivo</small><b>Mapping oggetti</b><span>Correzione di mapping e animazioni.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 09 · in arrivo</small><b>Color e proiezione</b><span>Color grading e proiezione.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 10 · in arrivo</small><b>Particellari e sound</b><span>Verifica del loop continuo e dell'audio.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 11 · in arrivo</small><b>Riprese e aftermovie</b><span>Documentazione video della proiezione.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 12 · in arrivo</small><b>Codec e Resolume Arena</b><span>Formati di esportazione e playback.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 13 · in arrivo</small><b>Test mapping live 1</b><span>Primo test live e shooting.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 14 · in arrivo</small><b>Test mapping live 2</b><span>Secondo test live e shooting.</span></div>
+    <div class="card soon" aria-disabled="true"><small>Lezione 15 · in arrivo</small><b>Visione dei progetti</b><span>Visione di tutti i progetti.</span></div>
+  </div>
+  <section class="calbox">
+<div class="calsub">
+  <div class="lbl">Calendario delle scadenze · con promemoria</div>
+  <div class="seg calos" role="group" aria-label="Dispositivo">
+    <button type="button" data-os="mac" aria-pressed="true">Mac</button>
+    <button type="button" data-os="ios" aria-pressed="false">iPhone</button>
+    <button type="button" data-os="android" aria-pressed="false">Android</button>
+  </div>
+  <div class="calpane" data-pane="mac">
+    <a class="btn cta" data-cal="apple" href="#">Iscriviti su Mac</a>
+    <ol>
+      <li>Si apre l'app Calendario: conferma l'iscrizione.</li>
+      <li>Nella finestra successiva togli la spunta da "Rimuovi: Avvisi" e imposta l'aggiornamento automatico su "Ogni giorno".</li>
+      <li>Clicca OK. I promemoria arrivano una settimana prima, due giorni prima e il giorno stesso alle 9:00.</li>
+    </ol>
+  </div>
+  <div class="calpane" data-pane="ios" hidden>
+    <a class="btn cta" data-cal="apple" href="#">Iscriviti su iPhone</a>
+    <ol>
+      <li>Apri questa pagina con Safari e tocca il pulsante.</li>
+      <li>Tocca "Iscriviti", poi "Fine". Se compare l'opzione "Rimuovi avvisi", lasciala disattivata.</li>
+      <li>Il calendario "EDI 2 · Scadenze" compare nell'app Calendario con i promemoria alle 9:00.</li>
+    </ol>
+  </div>
+  <div class="calpane" data-pane="android" hidden>
+    <a class="btn cta" data-cal="google" href="https://calendar.google.com/" target="_blank" rel="noopener">Iscriviti su Android</a>
+    <ol>
+      <li>Si apre Google Calendar nel browser: conferma "Aggiungi". Se la richiesta non compare, attiva "Sito desktop" dal menu del browser e tocca di nuovo il pulsante.</li>
+      <li>Nell'app Google Calendar apri Menu → Impostazioni → "EDI 2 · Scadenze" e attiva la sincronizzazione.</li>
+      <li>Nella stessa schermata imposta le notifiche per gli eventi di tutto il giorno: 1 settimana prima, 2 giorni prima e il giorno stesso, alle 9:00. Google non importa gli avvisi da solo.</li>
+    </ol>
+  </div>
+  <p class="hint">Indirizzo del calendario: <span class="calurl" data-cal="url"></span></p>
+</div>
+  </section>
+  <footer>Materiali ufficiali, date e orari degli appelli: Canvas.</footer>
+</main>
+<script>
+(() => {
+  const CAL_REL = 'calendario/edi2-scadenze.ics';
+  /* ---------- Iscrizione al calendario delle scadenze ---------- */
+  (function calendar(rel) {
+    let https = 'https://visualstudiolab.github.io/edi2/calendario/edi2-scadenze.ics';
+    try { if (location.hostname.endsWith('github.io')) https = new URL(rel, location.href).href; } catch (e) {}
+    const webcal = https.replace(/^https:/, 'webcal:');
+    document.querySelectorAll('[data-cal]').forEach(el => {
+      const k = el.dataset.cal;
+      if (k === 'google') el.href = 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(webcal);
+      else if (k === 'apple') el.href = webcal;
+      else if (k === 'url') el.textContent = https;
+    });
+    const ua = navigator.userAgent || '';
+    const os = /android/i.test(ua) ? 'android' : (/iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) ? 'ios' : 'mac';
+    document.querySelectorAll('.calsub').forEach(box => {
+      const pick = v => {
+        box.querySelectorAll('.calos button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.os === v)));
+        box.querySelectorAll('.calpane').forEach(p => { p.hidden = p.dataset.pane !== v; });
+      };
+      box.querySelector('.calos').addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(b.dataset.os); });
+      pick(os);
+    });
+  })(CAL_REL);
+})();
+</script>
+</body>
+</html>

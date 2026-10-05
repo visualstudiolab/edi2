@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dal Monitor allo Spazio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: slide a schermo pieno che alternano nero pieno (titolo, case study, Q&A) e bianco (teoria, brief, consegne), come le sezioni di un sito istituzionale; testo a sinistra, demo a destra; barra di navigazione nera fissa in basso. */
+:root{
+  --black:#000; --ink:#1c1c1c; --g2:#2d2d2d; --g6:#666; --g8:#888; --gb:#bfbfbf; --ge:#e0e0e0; --gf:#f0f0f0; --white:#fff;
+  --orange:#ff6900;   /* unico accento forte */
+  --cyan:#22b8f0;     /* accento secondario, solo nelle demo */
+  --display:"Archivo","Arial Black",system-ui,sans-serif;
+  --body:"Bebas Neue","Arial Narrow",Impact,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--black);color:var(--white);font:400 1.3rem/1.2 var(--body);letter-spacing:.02em;overflow:hidden;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+
+/* ---------- Temi per slide ---------- */
+.slide{--bg:var(--white);--fg:var(--black);--muted:var(--g6);--line:var(--ge);--panel:var(--gf);--pill:var(--black);
+  --ok:#138a4c;--no:#d4291c;--wn:#b85f00;color-scheme:light}
+.slide.dark{--bg:var(--black);--fg:var(--white);--muted:var(--g8);--line:var(--g2);--panel:var(--ink);--pill:var(--g6);
+  --ok:#3fd17f;--no:#ff4d3d;--wn:#ffb000;color-scheme:dark}
+a{color:var(--fg);text-decoration-color:var(--orange);text-underline-offset:3px}
+
+/* ---------- Deck ---------- */
+#deck{position:relative;height:100%}
+.slide{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);color:var(--fg);padding:clamp(28px,6vh,72px) clamp(16px,5vw,72px) 110px;
+  opacity:0;visibility:hidden;transform:translateX(2%);transition:opacity .45s ease,transform .55s cubic-bezier(.2,.7,.2,1),visibility 0s .55s}
+.slide.past{transform:translateX(-2%)}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .55s cubic-bezier(.2,.7,.2,1),visibility 0s}
+.inner{max-width:1240px;min-height:100%;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(28px,4vw,64px);align-items:center}
+.inner > *{min-width:0}
+@media (max-width:900px){.inner{grid-template-columns:minmax(0,1fr);align-items:start}}
+
+.eyebrow{font:600 .72rem/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;gap:.75em;flex-wrap:wrap;align-items:center}
+.eyebrow .cue{color:var(--white);background:var(--orange);padding:.25em .8em;border-radius:999px}
+h1,h2{font-family:var(--display);font-variation-settings:"wdth" 125;font-weight:800;letter-spacing:-.01em;line-height:.98;text-wrap:balance;margin:.35em 0 .45em;text-transform:uppercase}
+h1{font-size:clamp(2.6rem,7vw,6rem)}
+h2{font-size:clamp(1.8rem,3.6vw,3.1rem)}
+h1 em,h2 em{font-style:normal;color:var(--orange)}
+.lede{font:700 clamp(1.05rem,1.5vw,1.3rem)/1.35 var(--display);font-variation-settings:"wdth" 110;color:var(--fg);max-width:46ch;margin:0 0 1.2em}
+p,li{text-wrap:pretty}
+ul.points{list-style:none;padding:0;margin:0;display:grid;gap:.75em;max-width:52ch}
+ul.points li{padding-left:1.3em;position:relative}
+ul.points li::before{content:"";position:absolute;left:0;top:.45em;width:.55em;height:.55em;background:var(--orange)}
+ul.points b{color:var(--orange);font-weight:400}
+.rule{margin-top:1.4em;border-left:6px solid var(--orange);background:var(--panel);padding:.9em 1.1em;max-width:52ch;display:grid;gap:.25em}
+.rule .k{font:600 .7rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.rule p{margin:0;font-size:1.6rem;line-height:1.05}
+.refs{margin-top:1.4em;display:grid;gap:.6em;max-width:56ch}
+.refs .k{font:600 .7rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.refs .links{display:flex;flex-wrap:wrap;gap:.5em}
+.chip-link{font-size:1.05rem;border:2px solid var(--pill);padding:.35em 1em;border-radius:999px;text-decoration:none;color:var(--fg)}
+.chip-link:hover{border-color:var(--orange);color:var(--orange)}
+.chip-link::after{content:" ↗"}
+.watch{margin-top:1em;color:var(--muted);max-width:52ch}
+.watch b{color:var(--fg);font-weight:400}
+
+/* ---------- Strumenti / demo ---------- */
+.tool{background:var(--panel);padding:clamp(14px,2vw,24px);display:grid;gap:14px}
+.tool-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;font:600 .7rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tool-head .live{color:var(--fg)}
+.stage{position:relative;background:#000;overflow:hidden;aspect-ratio:4/3;max-width:100%}
+.stage svg,.stage canvas{display:block;width:100%;height:100%}
+.controls{display:grid;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font:600 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);min-width:9.5em}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+/* pulsanti a pillola: bordo pieno, riempiti quando attivi */
+.seg button,.btn{background:transparent;border:2px solid var(--pill);border-radius:999px;padding:.3em .95em;font-size:1.05rem;cursor:pointer;color:var(--fg);display:inline-flex;align-items:center;gap:.45em;line-height:1.1}
+.seg button:hover,.btn:hover{border-color:var(--fg)}
+.seg button[aria-pressed="true"],.btn[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.btn.cta{background:var(--orange);border-color:var(--orange);color:var(--white)}
+.btn.cta:hover{background:transparent;color:var(--orange)}
+.toggle{display:inline-flex;border:2px solid var(--pill);border-radius:999px;padding:2px}
+.toggle .btn{border:0;padding:.25em 1em}
+.btn.icon{width:2.3em;height:2.3em;padding:0;justify-content:center;border-radius:50%}
+.slider{display:grid;grid-template-columns:auto minmax(0,1fr) 4.4em;gap:10px;align-items:center}
+.slider output{font:600 .82rem var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--orange);min-width:0}
+.readout{font:400 .82rem/1.5 var(--mono);color:var(--muted);border-top:1px solid var(--line);padding-top:12px;display:flex;flex-wrap:wrap;gap:.4em 1.4em}
+.readout b{color:var(--fg);font-weight:600}
+.ok{color:var(--ok)!important}.no{color:var(--no)!important}.wn{color:var(--wn)!important}
+
+/* ---------- Slide 1 ---------- */
+.s-title .inner{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+@media (max-width:900px){.s-title .inner{grid-template-columns:minmax(0,1fr)}}
+.title-meta{display:grid;gap:1.1em;max-width:52ch}
+.who{display:flex;gap:2.2em;flex-wrap:wrap;font:600 .7rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.who b{display:block;color:var(--fg);font:400 1.5rem/1.1 var(--body);letter-spacing:.02em;text-transform:none;margin-top:.2em}
+.focus{border-left:6px solid var(--orange);padding-left:1em;margin:0}
+.focus b{color:var(--orange);font-weight:400}
+.hint{font:400 .78rem var(--mono);color:var(--muted);letter-spacing:0}
+.hint kbd{border:1px solid var(--line);border-radius:4px;padding:.05em .4em;font-family:var(--mono)}
+#frameDemo .frame,#frameDemo .outside{transition:opacity .8s ease}
+#frameDemo.noframe .frame{opacity:0}
+#frameDemo.noframe .outside{opacity:1}
+#frameDemo .obj{transition:filter .8s ease}
+#frameDemo.noframe .obj{filter:drop-shadow(0 0 14px rgba(255,255,255,.45))}
+
+/* ---------- Slide 2 ---------- */
+#lightStage .room{position:absolute;inset:0;background:#050505}
+#lightStage .surf{position:absolute;left:18%;top:14%;width:64%;height:72%;border-radius:10px 10px 40% 40% / 10px 10px 18% 18%;background:var(--alb,#ecebe6)}
+#lightStage .proj{position:absolute;inset:0;mix-blend-mode:multiply}
+#lightStage .amb{position:absolute;inset:0;background:#fff;mix-blend-mode:screen;opacity:var(--amb,0)}
+#lightStage .glare{position:absolute;left:44%;top:22%;width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,.85) 18%,rgba(255,255,255,0) 70%);mix-blend-mode:screen;opacity:var(--gl,0);filter:blur(1px)}
+#lightStage .tag{position:absolute;left:10px;top:8px;font:600 .66rem var(--mono);letter-spacing:.1em;color:#888;text-transform:uppercase}
+
+/* ---------- Slide 3 ---------- */
+#trimSvg path{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#trimSvg .seam{stroke-width:1.6;stroke:var(--cyan)}
+#trimSvg .ghost{fill:#141414;stroke:none}
+
+/* ---------- Slide 6 ---------- */
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;counter-reset:p}
+@media (max-width:560px){.pipe{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pipe button{counter-increment:p;text-align:left;background:var(--bg);border:2px solid transparent;padding:.6em .75em;cursor:pointer;display:grid;gap:.1em;color:var(--fg)}
+.pipe button::before{content:"0" counter(p);font:600 .66rem var(--mono);color:var(--orange)}
+.pipe button b{font:800 .9rem var(--display);font-variation-settings:"wdth" 112;text-transform:uppercase}
+.pipe button span{font-size:1rem;color:var(--muted)}
+.pipe button:hover{border-color:var(--line)}
+.pipe button[aria-pressed="true"]{border-color:var(--fg)}
+.pipe-detail{min-height:3em;margin:0}
+.timeline{position:relative;height:64px;background:#000;overflow:hidden}
+.timeline .tick{position:absolute;bottom:0;width:1px;height:30%;background:#666}
+.timeline .tick.bar{height:70%;background:#fff}
+.timeline .rest{position:absolute;top:0;bottom:0;right:0;background:repeating-linear-gradient(45deg,rgba(255,105,0,.3) 0 6px,transparent 6px 12px);border-left:2px solid var(--orange)}
+.timeline .head{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);left:0}
+.tl-scale{display:flex;justify-content:space-between;font:400 .68rem var(--mono);color:var(--muted);margin-top:4px}
+.flash{width:16px;height:16px;border-radius:50%;background:var(--line);transition:background .12s ease;flex:none}
+.flash.on{background:var(--fg)}
+.flash.bar.on{background:var(--orange)}
+.num{width:5em;background:transparent;border:2px solid var(--pill);border-radius:999px;padding:.25em .7em;font-family:var(--mono);font-size:.9rem}
+
+/* ---------- Slide 7 ---------- */
+.verdict{display:flex;align-items:center;gap:14px;background:var(--bg);padding:12px 16px;flex-wrap:wrap}
+.verdict .big{font:800 1.5rem var(--display);font-variation-settings:"wdth" 125;text-transform:uppercase}
+.issues{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:1.1rem}
+.issues li{display:grid;grid-template-columns:3.4em minmax(0,1fr);gap:8px}
+.issues li span:first-child{font:600 .7rem/1.9 var(--mono);letter-spacing:.08em}
+.noes{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6em}
+.noes span{font-size:1.05rem;border:2px solid var(--no);color:var(--no);padding:.2em .9em;border-radius:999px;text-decoration:line-through}
+
+/* ---------- Slide 8 ---------- */
+.crit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px;margin-top:1.2em;max-width:64ch}
+@media (max-width:560px){.crit{grid-template-columns:minmax(0,1fr)}}
+.crit div{border-top:3px solid var(--fg);padding-top:.6em}
+.crit h3{margin:0 0 .3em;font:800 .95rem var(--display);font-variation-settings:"wdth" 112;text-transform:uppercase}
+.crit p{margin:0;color:var(--muted)}
+.check{display:flex;gap:.5em;align-items:center;font:400 .75rem var(--mono);color:var(--muted);margin-top:.5em;cursor:pointer;letter-spacing:0}
+.check input{accent-color:var(--orange)}
+
+.spec{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.55em 1.2em;margin:0;align-items:baseline}
+.spec dt{font:600 .7rem var(--mono);letter-spacing:.08em;color:var(--orange)}
+.spec dd{margin:0}
+
+/* ---------- Slide 9 ---------- */
+.qa h1{font-size:clamp(2.4rem,6vw,5rem)}
+.qa-list{display:grid;gap:.8em;max-width:56ch;padding:0;list-style:none;margin:1em 0 1.5em}
+.qa-list li{border-bottom:1px solid var(--line);padding-bottom:.8em;color:var(--muted)}
+.qa-list b{color:var(--fg);font-weight:400}
+
+/* ---------- Navigazione ---------- */
+.progress{position:fixed;left:0;right:0;top:0;height:3px;z-index:20}
+.progress span{display:block;height:100%;background:var(--orange);width:0;transition:width .5s ease}
+.hud{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px clamp(16px,3vw,28px) calc(10px + env(safe-area-inset-bottom,0px));
+  background:var(--black);border-top:1px solid var(--g2);color:var(--white);font-size:1.1rem}
+.hud button{background:transparent;border:2px solid var(--g6);border-radius:999px;padding:.2em .95em;cursor:pointer;color:var(--white)}
+.hud button:hover{border-color:var(--white)}
+.hud button[aria-pressed="true"]{background:var(--white);color:var(--black);border-color:var(--white)}
+.hud #prev,.hud #next{width:2.2em;height:2.2em;padding:0;border-radius:50%}
+.hud .count{font:600 .85rem var(--mono);font-variant-numeric:tabular-nums}
+.hud .ttl{color:var(--g8);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:620px){.hud .opt{display:none}}
+/* modalità dispensa: tutte le slide una sotto l'altra, pagina che scorre */
+body.handout{overflow-y:auto}
+body.handout #deck{height:auto}
+body.handout .slide{position:relative;inset:auto;opacity:1;visibility:visible;transform:none;overflow:visible;transition:none;
+  padding-block:clamp(48px,9vh,96px);border-bottom:1px solid var(--g2)}
+body.handout .slide:last-child{padding-bottom:140px}
+body.handout .inner{min-height:0}
+body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn{display:none}
+.only-touch{display:none}
+@media (hover:none) and (pointer:coarse){
+  .only-keys{display:none!important}
+  .only-touch{display:revert}
+  .hud{gap:8px}
+  .hud button{min-height:44px}
+  .hud #prev,.hud #next{width:48px;height:48px;background:var(--orange);border-color:var(--orange)}
+  #depthStage{touch-action:none}
+}
+.swipe-hint{color:var(--muted)}
+.swipe-hint b{color:var(--fg);font-weight:600}
+.swipe-ico{display:inline-block;color:var(--orange);margin-right:.4em;animation:nudge 1.8s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.96);color:var(--white);padding:clamp(24px,5vw,60px) clamp(16px,5vw,60px);overflow-y:auto}
+.overlay h2{font-size:1.6rem;margin:0 0 1em}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-width:1100px}
+.ov-grid button{text-align:left;background:var(--ink);border:2px solid transparent;padding:14px;cursor:pointer;display:grid;gap:.4em;min-height:110px;align-content:start;color:var(--white)}
+.ov-grid button:hover{border-color:var(--g6)}
+.ov-grid button.cur{border-color:var(--orange)}
+.ov-grid small{font:600 .68rem var(--mono);color:var(--orange);letter-spacing:.1em}
+.ov-grid b{font:800 .95rem/1.2 var(--display);font-variation-settings:"wdth" 112;text-transform:uppercase}
+.overlay .close{position:absolute;right:clamp(16px,3vw,32px);top:clamp(16px,3vw,28px);border:2px solid var(--g6);border-radius:999px;background:transparent;color:var(--white);padding:.25em 1em;cursor:pointer}
+#notes{position:fixed;z-index:25;right:clamp(16px,3vw,28px);bottom:76px;width:min(420px,calc(100% - 32px));background:var(--ink);color:var(--white);border-left:6px solid var(--orange);padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+#notes .k{font:600 .68rem var(--mono);letter-spacing:.14em;color:var(--orange);text-transform:uppercase;margin-bottom:.5em}
+#notes p{margin:0}
+
+@media (prefers-reduced-motion:reduce){
+  .slide,.slide.active{transition:opacity .2s ease,visibility 0s;transform:none!important}
+  *{animation:none!important}
+}
+</style>
+</head>
+<body>
+
+
+<div class="progress" aria-hidden="true"><span id="prog"></span></div>
+
+<main id="deck">
+
+<!-- 01 -->
+<section class="slide dark s-title" data-title="Dal Monitor allo Spazio" id="t1">
+    <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 01</span> AA 2627 · 21V0-ABTEC38 - EDI 2</div>
+      <h1>Dal Monitor<br>allo <em>Spazio</em></h1>
+      <div class="title-meta">
+        <p class="lede">Product &amp; Spatial Mapping.</p>
+        <div class="who"><div>Docente<b>Corrado Santoro</b></div><div>Lezione<b>01 / Introduzione</b></div></div>
+        <p class="focus"><b>Focus del corso:</b> abbandonare il frame 16:9. L'inquadratura non è più la composition di After Effects, ma l'oggetto fisico nello spazio reale.</p>
+        <p class="hint only-keys">Naviga con <kbd>←</kbd> <kbd>→</kbd> o <kbd>spazio</kbd> · <kbd>G</kbd> indice · <kbd>N</kbd> note · <kbd>F</kbd> schermo intero · <kbd>D</kbd> dispensa</p>
+        <p class="hint only-touch swipe-hint"><span class="swipe-ico" aria-hidden="true">⟵ ⟶</span> Scorri col dito per cambiare slide, oppure usa le frecce in basso. <b>Indice</b> per saltare a una slide, <b>Dispensa</b> per leggerle tutte di seguito.</p>
+      </div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Comp Main · 1920 × 1080 · 25 fps</span><span class="live" id="frameState">Vista: monitor 16:9</span></div>
+      <div class="stage" style="aspect-ratio:16/10">
+        <svg id="frameDemo" viewBox="0 0 400 250" role="img" aria-label="Un riquadro 16:9 attorno a una scatola: rimuovendo il frame resta solo l'oggetto illuminato">
+          <rect width="400" height="250" fill="#000000"/>
+          <g class="frame">
+            <rect x="40" y="30" width="320" height="180" fill="#1c1c1c" stroke="#ffffff" stroke-dasharray="5 4"/>
+            <text x="44" y="24" fill="#888888" font-family="JetBrains Mono, monospace" font-size="9">16:9 · composition</text>
+            <line x1="40" y1="120" x2="360" y2="120" stroke="#2d2d2d"/><line x1="200" y1="30" x2="200" y2="210" stroke="#2d2d2d"/>
+          </g>
+          <g class="obj">
+            <path class="face" d="M200 62 L268 101 L200 140 L132 101 Z" fill="#ffffff"/>
+            <path class="face" d="M132 101 L200 140 L200 205 L132 166 Z" fill="#bfbfbf"/>
+            <path class="face" d="M200 140 L268 101 L268 166 L200 205 Z" fill="#e0e0e0"/>
+          </g>
+          <text class="outside" opacity="0" x="200" y="236" text-anchor="middle" fill="#888888" font-family="JetBrains Mono, monospace" font-size="9">l'inquadratura è l'oggetto</text>
+        </svg>
+      </div>
+      <div class="row"><div class="toggle" id="viewToggle" role="group" aria-label="Vista"><button class="btn flat" type="button" data-v="flat" aria-pressed="true">Monitor</button><button class="btn flat" type="button" data-v="space" aria-pressed="false">Spazio</button></div><button class="btn flat icon" id="faceBtn" type="button" aria-label="Play" aria-pressed="false" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="slide dark" data-title="Il Nero Ottico e la Fisica della Luce">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 02</span> Regola #1 · Fisica della luce</div>
+      <h2>Il proiettore non proietta il <em>nero</em>.</h2>
+      <ul class="points">
+        <li><b>Il nero è trasparenza.</b> In After Effects un pixel con valore RGB 0,0,0 significa “luce spenta”: il videoproiettore smette di emettere luce in quel punto.</li>
+        <li><b>Luce incidentale.</b> Il colore risultante dipende dalla superficie reale. Il mapping aggiunge luce, non vernice.</li>
+        <li><b>Assorbimento vs. riflettanza.</b> Un oggetto nero assorbe la luce annullando il contrasto. Un oggetto lucido o specchiato riflette il bulbo del proiettore e distrugge l'illusione ottica.</li>
+      </ul>
+      <div class="rule"><span class="k">La regola d'oro</span><p>Si mappa solo su superfici opache (matte) e chiare.</p></div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Simulatore · luce × superficie</span><span class="live" id="matName">Bianco opaco</span></div>
+      <div class="stage" id="lightStage">
+        <div class="room"></div>
+        <div class="surf"></div>
+        <div class="amb"></div>
+        <div class="proj" id="projLayer">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+            <rect width="400" height="300" fill="#000"/>
+            <g stroke="#fff" stroke-width="1.5" opacity=".9">
+              <path d="M40 0V300M100 0V300M160 0V300M220 0V300M280 0V300M340 0V300M0 50H400M0 110H400M0 170H400M0 230H400"/>
+            </g>
+            <g style="mix-blend-mode:screen">
+              <circle cx="170" cy="120" r="52" fill="#ff0000"/>
+              <circle cx="230" cy="120" r="52" fill="#00ff00"/>
+              <circle cx="200" cy="170" r="52" fill="#0000ff"/>
+            </g>
+            <rect x="120" y="222" width="160" height="40" fill="#000"/>
+          </svg>
+        </div>
+        <div class="glare"></div>
+        <span class="tag">Sala buia · vista spettatore</span>
+      </div>
+      <div class="controls">
+        <div class="row"><span class="lbl">Superficie</span>
+          <div class="seg" id="matSeg">
+            <button type="button" data-m="white" aria-pressed="true">Bianco opaco</button>
+            <button type="button" data-m="grey">Grigio chiaro</button>
+            <button type="button" data-m="black">Nero</button>
+            <button type="button" data-m="gloss">Plastica lucida</button>
+            <button type="button" data-m="chrome">Cromo</button>
+          </div>
+        </div>
+        <label class="slider"><span class="lbl">Proiettore</span><input id="lumIn" type="range" min="0" max="100" value="100"><output id="lumOut">100%</output></label>
+        <label class="slider"><span class="lbl">Luce ambiente</span><input id="ambIn" type="range" min="0" max="60" value="0"><output id="ambOut">0%</output></label>
+      </div>
+      <div class="readout" id="lightRead"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="slide dark" data-title="Case Study 1 · Scansione e Wireframe" data-enter="trim">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 03</span> Case study 1 · Scansione e wireframe</div>
+      <h2>Costruire la geometria <em>(Edge Tracing)</em></h2>
+      <ul class="points">
+        <li><b>Approccio.</b> Svelare l'oggetto al buio disegnandone fisicamente i contorni e le cuciture, prima di applicare qualsiasi materiale o colore.</li>
+        <li><b>Perché funziona.</b> Fissa le coordinate spaziali per l'occhio dello spettatore. Dimostra il controllo assoluto della macchina sulla superficie reale.</li>
+      </ul>
+      <p class="watch"><b>Cosa guardare:</b> l'uso dei tracciati vettoriali e l'animazione di svelamento iniziale, che in After Effects replicheremo con <b>Trim Paths / Taglia tracciati</b>.</p>
+      <div class="refs"><span class="k">Reference · chiavi di ricerca</span>
+        <div class="links">
+          <a class="chip-link" href="https://www.youtube.com/results?search_query=Nike+Air+Force+1+Projection+Mapping" target="_blank" rel="noopener">Nike Air Force 1 Projection Mapping</a>
+          <a class="chip-link" href="https://www.youtube.com/results?search_query=Asics+Gel+retail+projection+mapping" target="_blank" rel="noopener">Asics Gel retail mapping</a>
+        </div>
+      </div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Livello forma › Taglia tracciati</span><span class="live" id="trimState">Fine: 100%</span></div>
+      <div class="stage">
+        <svg id="trimSvg" viewBox="0 0 400 400" role="img" aria-label="Una scatola isometrica disegnata progressivamente lungo i suoi spigoli">
+          <path class="ghost" d="M200 60 L330 135 L330 275 L200 350 L70 275 L70 135 Z"/>
+          <path d="M200 60 L330 135 L200 210 L70 135 Z" pathLength="1"/>
+          <path d="M70 135 L70 275" pathLength="1"/>
+          <path d="M200 210 L200 350" pathLength="1"/>
+          <path d="M330 135 L330 275" pathLength="1"/>
+          <path d="M70 275 L200 350 L330 275" pathLength="1"/>
+          <path class="seam" d="M70 165 L200 240 L330 165" pathLength="1"/>
+          <path class="seam" d="M135 97.5 L265 172.5" pathLength="1"/>
+          <path class="seam" d="M226 244 L304 199 L304 241 L226 286 Z" pathLength="1"/>
+        </svg>
+      </div>
+      <div class="controls">
+        <label class="slider"><span class="lbl">Inizio</span><input id="trimStart" type="range" min="0" max="100" value="0"><output id="trimStartOut">0%</output></label>
+        <label class="slider"><span class="lbl">Fine</span><input id="trimEnd" type="range" min="0" max="100" value="100"><output id="trimEndOut">100%</output></label>
+        <div class="row"><button class="btn cta" type="button" id="trimPlay"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>Riproduci lo svelamento</button><span class="hint">Bianco: spigoli · Azzurro: cuciture e zona logo</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="slide dark" data-title="Case Study 2 · Fluidi e Materiali">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 04</span> Case study 2 · Fluidi e materiali</div>
+      <h2>Scomporre le superfici <em>(Materiali Dinamici)</em></h2>
+      <ul class="points">
+        <li><b>Approccio.</b> Separare l'oggetto in zone gerarchiche (es. etichetta vs. corpo centrale) e applicare simulazioni di materiali: liquidi, metallo, glitch.</li>
+        <li><b>Perché funziona.</b> Crea contrasto tra l'identità statica del brand e la mutazione dinamica del contenitore.</li>
+      </ul>
+      <p class="watch"><b>Cosa guardare:</b> l'effetto di svuotamento/riempimento del liquido, e come le grafiche frontali restano ferme mentre il background mappa la curvatura del vetro satinato.</p>
+      <div class="refs"><span class="k">Reference · chiavi di ricerca</span>
+        <div class="links">
+          <a class="chip-link" href="https://www.youtube.com/results?search_query=Absolut+Vodka+Projection+Mapping+Sila+Sveta" target="_blank" rel="noopener">Absolut Vodka · Sila Sveta</a>
+          <a class="chip-link" href="https://www.youtube.com/results?search_query=Hennessy+projection+mapping+box" target="_blank" rel="noopener">Hennessy mapping box</a>
+        </div>
+      </div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Zone gerarchiche · A statica / B dinamica</span><span class="live" id="fluidState">Liquido</span></div>
+      <div class="stage" style="aspect-ratio:300/430;max-height:62vh;margin-inline:auto;width:100%;max-width:320px">
+        <canvas id="bottle" width="300" height="430" aria-label="Bottiglia mappata: il materiale del corpo cambia mentre l'etichetta resta ferma"></canvas>
+      </div>
+      <div class="controls">
+        <div class="row"><span class="lbl">Materiale zona B</span>
+          <div class="seg" id="fluidSeg">
+            <button type="button" data-f="liquid" aria-pressed="true">Liquido</button>
+            <button type="button" data-f="metal">Metallo</button>
+            <button type="button" data-f="glitch">Glitch</button>
+          </div>
+        </div>
+        <label class="slider"><span class="lbl">Livello</span><input id="levelIn" type="range" min="0" max="100" value="60"><output id="levelOut">Auto</output></label>
+        <div class="row"><button class="btn" type="button" id="autoBtn" aria-pressed="true">Svuota/riempi automatico: on</button><button class="btn" type="button" id="zonesBtn" aria-pressed="false">Mostra le zone</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="slide dark" data-title="Case Study 3 · L'Illusione della Profondità">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 05</span> Case study 3 · L'illusione della profondità</div>
+      <h2>Sfondare il volume <em>(Depth Illusion)</em></h2>
+      <ul class="points">
+        <li><b>Approccio.</b> Alterare la percezione della tridimensionalità: far sembrare concavo un oggetto convesso, o viceversa.</li>
+        <li><b>Perché funziona.</b> Usa l'ombra virtuale e finte luci incidenti per “imbrogliare” il cervello. Pura illusione anamorfica.</li>
+      </ul>
+      <p class="watch"><b>Cosa guardare:</b> il rigore assoluto del bianco e nero. L'impatto visivo si ottiene dominando le ombre, non saturando i colori.</p>
+      <div class="refs"><span class="k">Reference · link diretto</span>
+        <div class="links">
+          <a class="chip-link" href="https://joanielemercier.com/origami" target="_blank" rel="noopener">Joanie Lemercier · Origami</a>
+          <a class="chip-link" href="https://www.youtube.com/results?search_query=Joanie+Lemercier+Origami+paper+projection+mapping" target="_blank" rel="noopener">Paper projection mapping</a>
+        </div>
+      </div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Luce virtuale · solo scala di grigi</span><span class="live" id="depthState">Lettura: convesso</span></div>
+      <div class="stage" id="depthStage" style="cursor:crosshair">
+        <svg id="depthSvg" viewBox="0 0 400 300" role="img" aria-label="Una tassellatura di cubi isometrici ombreggiati da una luce virtuale"></svg>
+      </div>
+      <div class="controls">
+        <label class="slider"><span class="lbl">Direzione luce</span><input id="angIn" type="range" min="0" max="359" value="235"><output id="angOut">235°</output></label>
+        <div class="row"><button class="btn" type="button" id="invBtn" aria-pressed="false">Inverti le ombre</button><span class="hint only-keys">Muovi il puntatore sulla scena per spostare la luce</span><span class="hint only-touch">Trascina il dito sulla scena per spostare la luce</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="slide dark" data-title="Il Brief di Progetto">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 06</span> Il brief di progetto · EDI 2</div>
+      <h2>Il progetto individuale: <em>Product Mapping</em></h2>
+      <ul class="points">
+        <li><b>Obiettivo.</b> Realizzare animazioni grafiche da proiettare su un oggetto fisico, valorizzandone forme e superfici con motion graphics, effetti e trasformazioni visive, in accordo con lo storyboard approvato.</li>
+        <li><b>Strumenti.</b> Photoshop → After Effects → MadMapper → Camera (aftermovie). Codec e Resolume Arena in Week 12.</li>
+        <li><b>Audio.</b> L'eventuale musica deve essere utilizzabile nel rispetto dei diritti e delle condizioni di licenza. Verifica del loop continuo e dell'audio in Week 10.</li>
+      </ul>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Pipeline</span><span class="live">4 passaggi</span></div>
+      <div class="pipe" id="pipe">
+        <button type="button" data-i="0" aria-pressed="true"><b>Photoshop</b><span>Foto e deformazione</span></button>
+        <button type="button" data-i="1"><b>After Effects</b><span>Animazione</span></button>
+        <button type="button" data-i="2"><b>MadMapper</b><span>Mapping</span></button>
+        <button type="button" data-i="3"><b>Camera</b><span>Aftermovie</span></button>
+      </div>
+      <p class="pipe-detail" id="pipeDetail"></p>
+    </div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="slide dark" data-title="I Vincoli Fisici dell'Oggetto" id="checker">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 07</span> Cosa portare per la Week 2</div>
+      <h2>I vincoli fisici dell'<em>oggetto</em></h2>
+      <p class="lede">Scegliere l'oggetto sbagliato significa compromettere 15 settimane di corso.</p>
+      <ul class="points">
+        <li><b>Dimensioni.</b> Minimo la taglia di una sneaker (circa 30 × 12 cm), massimo circa 100 cm sul lato lungo: la taglia di una chitarra o di una TV da 45".</li>
+        <li><b>Colore e finitura.</b> Rigorosamente opaco/matte. Bianco o grigio chiaro.</li>
+        <li><b>Forma.</b> Volumi chiari o scomparti leggibili: sneaker, packaging rigido, scultura geometrica, busto low-poly.</li>
+      </ul>
+      <div class="refs"><span class="k">I no assoluti</span>
+        <div class="noes"><span>Vetro</span><span>Cromo</span><span>Specchi</span><span>Nero assoluto</span><span>Plastica lucida</span><span>Sfere lisce senza spigoli</span></div>
+      </div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Checker oggetto · Week 2</span><span class="live">Prova un'idea</span></div>
+      <div class="row"><span class="lbl">Esempi</span>
+        <div class="seg" id="presets">
+          <button type="button" data-p="guitar">Chitarra rossa lucida</button>
+          <button type="button" data-p="bottle">Bottiglia di vetro</button>
+          <button type="button" data-p="sneaker">Sneaker bianca opaca</button>
+          <button type="button" data-p="pack">Packaging rigido bianco</button>
+          <button type="button" data-p="bust">Busto low-poly in gesso</button>
+          <button type="button" data-p="ball">Sfera di polistirolo</button>
+        </div>
+      </div>
+      <label class="slider"><span class="lbl">Larghezza</span><input id="cW" type="range" min="5" max="150" value="40"><output id="cWo">40 cm</output></label>
+      <label class="slider"><span class="lbl">Altezza</span><input id="cH" type="range" min="5" max="150" value="40"><output id="cHo">40 cm</output></label>
+      <div class="row"><span class="lbl">Finitura</span><div class="seg" data-k="fin">
+        <button type="button" data-v="opaco" aria-pressed="true">Opaco</button><button type="button" data-v="satinato">Satinato</button><button type="button" data-v="lucido">Lucido</button><button type="button" data-v="cromo">Cromo/specchio</button><button type="button" data-v="vetro">Vetro</button></div></div>
+      <div class="row"><span class="lbl">Colore</span><div class="seg" data-k="col">
+        <button type="button" data-v="bianco" aria-pressed="true">Bianco</button><button type="button" data-v="grigio">Grigio chiaro</button><button type="button" data-v="saturo">Colore saturo</button><button type="button" data-v="nero">Nero</button><button type="button" data-v="trasparente">Trasparente</button></div></div>
+      <div class="row"><span class="lbl">Forma</span><div class="seg" data-k="morph">
+        <button type="button" data-v="volumi" aria-pressed="true">Volumi e spigoli</button><button type="button" data-v="scomparti">Scomparti leggibili</button><button type="button" data-v="liscia">Liscia, senza spigoli</button></div></div>
+      <div class="verdict"><span class="big" id="vBig">Approvato</span><span class="hint" id="vSub"></span></div>
+      <ul class="issues" id="vList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="slide dark" data-title="Consegna EDI2.S1" data-notes="Subito dopo questa presentazione teorica, lascia il tempo per una sessione aperta di Q&amp;A per filtrare le idee folli. Gli studenti inizieranno subito a proporre chitarre elettriche rosse lucide o bottiglie di vetro trasparente: bloccali e reindirizzali verso superfici opache e trattabili. Il checker alla slide 07 serve proprio a questo.">
+  <div class="inner">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 08</span> Consegna · EDI2.S1 Product Mapping</div>
+      <h2>Cosa consegnerai: <em>EDI2.S1</em></h2>
+      <div class="crit">
+        <div><h3>Video finale</h3><p>Animazioni finalizzate. H.264 o H.265, 25 fps, 20 Mbps, audio AAC 48 kHz 24 bit. Risoluzione libera: quella dichiarata nello storyboard.</p></div>
+        <div><h3>Aftermovie</h3><p>Documentazione video della proiezione sull'oggetto.</p></div>
+        <div><h3>Progetti</h3><p>Progetto After Effects e progetto MadMapper, con le risorse necessarie.</p></div>
+        <div><h3>Materiali grafici</h3><p>Materiali grafici realizzati.</p></div>
+      </div>
+    </div>
+    <div class="tool">
+      <div class="tool-head"><span>Scadenze</span><span class="live">Date su Canvas</span></div>
+      <dl class="spec">
+        <dt>EDI2.F1</dt><dd>Storyboard · entro il 1 novembre 2026</dd>
+        <dt>EDI2.F2</dt><dd>Revisione del blockout · entro il 22 novembre 2026</dd>
+        <dt>EDI2.S1</dt><dd>Appello ordinario · entro il 21 febbraio 2027</dd>
+      </dl>
+      <div class="readout">
+        <span>Formato: <b>un unico archivio 7zip su Canvas</b></span>
+        <span>Nome: <b>Matricola_Codice_Argomento</b></span>
+        <span>Esempio: <b>17-12345_EDI2.S1_ProductMapping</b></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="slide dark qa" data-title="Q&amp;A · Filtro delle idee" data-notes="Usa il checker (slide 07) dal vivo con le proposte degli studenti: chitarre lucide, bottiglie di vetro, sfere lisce. Reindirizza ogni idea bocciata verso una variante opaca e chiara dello stesso concept (es. bottiglia → packaging rigido bianco della stessa marca).">
+  <div class="inner" style="grid-template-columns:minmax(0,1fr)">
+    <div>
+      <div class="eyebrow"><span class="cue">Cue 09</span> Laboratorio · sessione aperta</div>
+      <h1>Domande <em>&amp;</em> idee</h1>
+      <ul class="qa-list">
+        <li><b>Che oggetto state pensando di portare?</b> Diciamolo ad alta voce e passiamolo al checker.</li>
+        <li><b>È opaco e chiaro?</b> Se riflette la lampada di un telefono, rifletterà anche il proiettore.</li>
+        <li><b>Ha spigoli da tracciare?</b> Senza spigoli la maschera non ha riferimenti.</li>
+        <li><b>Sta sotto i 100 cm?</b> Al massimo la taglia di una chitarra o di una TV da 45".</li>
+      </ul>
+      <div class="row"><button class="btn cta" type="button" id="toChecker">Apri il checker oggetto</button><button class="btn" type="button" id="toStart">Torna all'inizio</button></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="hud" aria-label="Navigazione slide">
+  <button type="button" id="prev" aria-label="Slide precedente">←</button>
+  <span class="count" id="count">01 / 09</span>
+  <button type="button" id="next" aria-label="Slide successiva">→</button>
+  <span class="ttl" id="ttl"></span>
+  <button type="button" id="ovBtn">Indice</button>
+  <button type="button" id="handoutBtn" aria-pressed="false">Dispensa</button>
+  <button type="button" class="opt" id="notesBtn" aria-pressed="false">Note</button>
+  <button type="button" class="opt" id="fsBtn">Schermo intero</button>
+</nav>
+
+<div class="overlay" id="overview" hidden>
+  <button type="button" class="close" id="ovClose">Chiudi · Esc</button>
+  <h2>Lezione 01 · Indice</h2>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<aside id="notes" hidden aria-live="polite"><div class="k">Nota per il docente</div><p id="notesText"></p></aside>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const slides = $$('.slide');
+  const N = slides.length;
+  const pad = n => String(n).padStart(2, '0');
+  let cur = 0;
+  const enterHooks = {};
+
+  /* ---------- Navigazione ---------- */
+  let handout = false;
+  function go(n) {
+    n = Math.max(0, Math.min(N - 1, n));
+    if (handout) { slides[n].scrollIntoView({ behavior: reducedNav ? 'auto' : 'smooth' }); mark(n); return; }
+    slides.forEach((s, k) => {
+      s.classList.toggle('active', k === n);
+      s.classList.toggle('past', k < n);
+      s.inert = k !== n;
+      s.setAttribute('aria-hidden', k !== n);
+    });
+    cur = n;
+    $('#count').textContent = pad(n + 1) + ' / ' + pad(N);
+    $('#ttl').textContent = slides[n].dataset.title;
+    $('#prog').style.width = ((n + 1) / N * 100) + '%';
+    $('#notesText').textContent = slides[n].dataset.notes || 'Nessuna nota per questa slide.';
+    try { history.replaceState(null, '', '#s' + (n + 1)); } catch (e) {}
+    const h = slides[n].dataset.enter; if (h && enterHooks[h]) enterHooks[h]();
+    $$('#ovGrid button').forEach((b, k) => b.classList.toggle('cur', k === n));
+  }
+  const reducedNav = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* aggiorna contatore e titolo senza cambiare slide (usato in dispensa) */
+  function mark(n) {
+    cur = n;
+    $('#count').textContent = pad(n + 1) + ' / ' + pad(N);
+    $('#ttl').textContent = slides[n].dataset.title;
+    $('#prog').style.width = ((n + 1) / N * 100) + '%';
+    $$('#ovGrid button').forEach((b, k) => b.classList.toggle('cur', k === n));
+  }
+  const seen = new IntersectionObserver(entries => {
+    if (!handout) return;
+    entries.forEach(en => { if (en.isIntersecting) mark(slides.indexOf(en.target)); });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  slides.forEach(s => seen.observe(s));
+  function setHandout(on) {
+    const at = cur;
+    handout = on;
+    document.body.classList.toggle('handout', on);
+    $('#handoutBtn').setAttribute('aria-pressed', String(on));
+    $('#handoutBtn').textContent = on ? 'Torna alle slide' : 'Dispensa';
+    $('#notes').hidden = true; $('#notesBtn').setAttribute('aria-pressed', 'false');
+    if (on) {
+      slides.forEach(s => { s.inert = false; s.removeAttribute('aria-hidden'); s.classList.remove('past'); s.classList.add('active'); });
+      try { history.replaceState(null, '', '#dispensa'); } catch (e) {}
+      slides[at].scrollIntoView();
+    } else {
+      window.scrollTo(0, 0);
+      go(at);
+    }
+  }
+  $('#handoutBtn').onclick = () => setHandout(!handout);
+  const isField = el => el && (el.matches('input,select,textarea') || el.isContentEditable);
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target;
+    if (e.key === 'Escape') { $('#overview').hidden = true; $('#notes').hidden = true; $('#notesBtn').setAttribute('aria-pressed', 'false'); return; }
+    if (isField(t)) return;
+    if (e.key === 'd' || e.key === 'D') { setHandout(!handout); return; }
+    if (handout) { if (e.key === 'g' || e.key === 'G' || e.key === 'o') toggleOverview(); return; }
+    if (['ArrowRight', 'PageDown'].includes(e.key) || (e.key === ' ' && !t.matches('button'))) { e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(N - 1);
+    else if (e.key === 'g' || e.key === 'G' || e.key === 'o') toggleOverview();
+    else if (e.key === 'n' || e.key === 'N') toggleNotes();
+    else if (e.key === 'f' || e.key === 'F') toggleFs();
+  });
+  let tx = 0, ty = 0, tTarget = null;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; tTarget = e.target; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (handout || (tTarget && tTarget.closest('input,.stage,.timeline'))) return;
+    const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+  $('#prev').onclick = () => go(cur - 1);
+  $('#next').onclick = () => go(cur + 1);
+
+  const ovGrid = $('#ovGrid');
+  slides.forEach((s, k) => {
+    const b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = '<small>CUE ' + pad(k + 1) + '</small><b></b>';
+    b.querySelector('b').textContent = s.dataset.title;
+    b.onclick = () => { go(k); $('#overview').hidden = true; };
+    ovGrid.appendChild(b);
+  });
+  function toggleOverview() { const o = $('#overview'); o.hidden = !o.hidden; if (!o.hidden) ovGrid.children[cur].focus(); }
+  function toggleNotes() { const n = $('#notes'); n.hidden = !n.hidden; $('#notesBtn').setAttribute('aria-pressed', String(!n.hidden)); }
+  async function toggleFs() {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
+  }
+  $('#ovBtn').onclick = toggleOverview; $('#ovClose').onclick = toggleOverview;
+  $('#notesBtn').onclick = toggleNotes; $('#fsBtn').onclick = toggleFs;
+  $('#toChecker').onclick = () => go(slides.indexOf($('#checker')));
+  $('#toStart').onclick = () => go(0);
+
+  /* segmented helper */
+  function seg(container, cb) {
+    container.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      container.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      cb(b);
+    });
+  }
+  const setSeg = (container, attr, val) => container.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset[attr] === val)));
+
+  /* ---------- 01 · beam + frame ---------- */
+  const t1 = $('#t1');
+  t1.addEventListener('pointermove', e => {
+    const r = t1.getBoundingClientRect();
+    t1.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    t1.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  });
+  /* facciate in sequenza: una volta all'uscita dal frame, poi play/pausa in loop */
+  const faces = $$('#frameDemo .face'), faceBtn = $('#faceBtn');
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FULL = 1650, HOLD = 2800, CYCLE = 3500;
+  let fMode = 'off', fT = FULL, fLast = 0, fRaf = 0;
+  function paintFaces() {
+    const fade = fMode !== 'once' && fT > HOLD ? Math.max(0, 1 - (fT - HOLD) / 500) : 1;
+    faces.forEach((f, k) => f.style.opacity = Math.min(1, Math.max(0, (fT - k * 600) / 450)) * fade);
+  }
+  function setFaceBtn() {
+    const on = fMode === 'loop';
+    faceBtn.innerHTML = on ? '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z" fill="currentColor"/></svg>' : '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>';
+    faceBtn.setAttribute('aria-label', on ? 'Pausa' : 'Play');
+    faceBtn.setAttribute('aria-pressed', String(on));
+  }
+  function stepFaces(now) {
+    if (fMode !== 'once' && fMode !== 'loop') return;
+    fT += now - fLast; fLast = now;
+    if (fMode === 'once' && fT >= FULL) { fT = FULL; fMode = 'done'; paintFaces(); faceBtn.hidden = false; setFaceBtn(); return; }
+    if (fMode === 'loop' && fT >= CYCLE) fT -= CYCLE;
+    paintFaces(); fRaf = requestAnimationFrame(stepFaces);
+  }
+  function startFaces(mode) {
+    cancelAnimationFrame(fRaf);
+    if (RM) { fT = FULL; fMode = 'done'; paintFaces(); faceBtn.hidden = false; setFaceBtn(); return; }
+    fMode = mode; fLast = performance.now(); setFaceBtn();
+    fRaf = requestAnimationFrame(stepFaces);
+  }
+  faceBtn.onclick = () => {
+    if (fMode === 'loop') { cancelAnimationFrame(fRaf); fMode = 'paused'; setFaceBtn(); }
+    else { if (fMode === 'done') fT = 0; startFaces('loop'); }
+  };
+  $('#viewToggle').onclick = e => {
+    const b = e.target.closest('button'); if (!b || b.getAttribute('aria-pressed') === 'true') return;
+    const off = b.dataset.v === 'space';
+    $('#viewToggle').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    $('#frameDemo').classList.toggle('noframe', off);
+    $('#frameState').textContent = off ? 'Vista: spazio' : 'Vista: monitor 16:9';
+    cancelAnimationFrame(fRaf); faceBtn.hidden = true;
+    if (off) { fT = 0; fMode = 'once'; paintFaces(); startFaces('once'); }
+    else { fMode = 'off'; fT = FULL; paintFaces(); }
+  };
+
+  /* ---------- 02 · luce × superficie ---------- */
+  const MATS = {
+    white:  { n: 'Bianco opaco', alb: '#ecebe6', gl: 0,   refl: 85, v: ['ok', 'Mappabile'] },
+    grey:   { n: 'Grigio chiaro opaco', alb: '#b8bab9', gl: 0, refl: 55, v: ['ok', 'Mappabile'] },
+    black:  { n: 'Nero opaco', alb: '#161616', gl: 0,   refl: 4,  v: ['no', 'Assorbe la luce: contrasto annullato'] },
+    gloss:  { n: 'Plastica lucida', alb: '#cfcfcf', gl: .95, refl: 60, v: ['no', 'Hotspot del bulbo visibile'] },
+    chrome: { n: 'Cromo / specchio', alb: '#2c2f34', gl: 1, refl: 8, v: ['no', 'Riflette il proiettore, nessuna immagine'] }
+  };
+  let mat = 'white';
+  const ls = $('#lightStage');
+  function light() {
+    const m = MATS[mat], lum = +$('#lumIn').value / 100, amb = +$('#ambIn').value / 100;
+    ls.style.setProperty('--alb', m.alb);
+    ls.style.setProperty('--gl', (m.gl * lum).toFixed(2));
+    ls.style.setProperty('--amb', (amb * .55).toFixed(2));
+    $('#projLayer').style.filter = 'brightness(' + lum + ')';
+    $('#lumOut').textContent = Math.round(lum * 100) + '%';
+    $('#ambOut').textContent = Math.round(amb * 100) + '%';
+    $('#matName').textContent = m.n;
+    const contrast = amb > 0 ? Math.max(1, (lum + amb) / amb) : Infinity;
+    $('#lightRead').innerHTML =
+      '<span>Riflettanza ≈ <b>' + m.refl + '%</b></span>' +
+      '<span>Contrasto ' + (contrast === Infinity ? '<b>massimo (sala buia)</b>' : '<b>' + contrast.toFixed(1) + ':1</b>') + '</span>' +
+      '<span>Verdetto: <b class="' + m.v[0] + '">' + m.v[1] + '</b></span>' +
+      '<span>Pixel 0,0,0 = <b>luce spenta</b></span>';
+  }
+  seg($('#matSeg'), b => { mat = b.dataset.m; light(); });
+  $('#lumIn').oninput = light; $('#ambIn').oninput = light;
+  light();
+
+  /* ---------- 03 · Trim paths ---------- */
+  const trimPaths = $$('#trimSvg path:not(.ghost)');
+  function trimSet(s, e, perPath) {
+    trimPaths.forEach((p, k) => {
+      let ss = s, ee = e;
+      if (perPath) { ee = perPath[k]; ss = 0; }
+      const len = Math.max(0, ee - ss);
+      p.style.strokeDasharray = len + ' 2';
+      p.style.strokeDashoffset = -ss;
+      p.style.opacity = len <= 0.001 ? 0 : 1;
+    });
+  }
+  function trimFromSliders() {
+    const s = +$('#trimStart').value / 100, e = +$('#trimEnd').value / 100;
+    $('#trimStartOut').textContent = Math.round(s * 100) + '%';
+    $('#trimEndOut').textContent = Math.round(e * 100) + '%';
+    $('#trimState').textContent = 'Fine: ' + Math.round(e * 100) + '%';
+    trimSet(s, e);
+  }
+  $('#trimStart').oninput = () => { trimAnim = null; trimFromSliders(); };
+  $('#trimEnd').oninput = () => { trimAnim = null; trimFromSliders(); };
+  let trimAnim = null;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function playTrim() {
+    if (reduced) { $('#trimStart').value = 0; $('#trimEnd').value = 100; trimFromSliders(); return; }
+    const t0 = performance.now(), id = {}; trimAnim = id;
+    const ease = x => 1 - Math.pow(1 - x, 3);
+    (function step(now) {
+      if (trimAnim !== id) return;
+      const t = (now - t0) / 1000;
+      const vals = trimPaths.map((p, k) => ease(Math.min(1, Math.max(0, (t - k * 0.22) / 0.9))));
+      trimSet(0, 1, vals);
+      const total = Math.min(1, t / (0.22 * (trimPaths.length - 1) + 0.9));
+      $('#trimState').textContent = 'Fine: ' + Math.round(total * 100) + '%';
+      if (total < 1) requestAnimationFrame(step);
+      else { $('#trimStart').value = 0; $('#trimEnd').value = 100; trimFromSliders(); }
+    })(t0);
+  }
+  $('#trimPlay').onclick = playTrim;
+  enterHooks.trim = playTrim;
+  trimFromSliders();
+
+  /* ---------- 04 · Bottiglia ---------- */
+  const cv = $('#bottle'), cx = cv.getContext('2d');
+  const W = 300, H = 430, dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = W * dpr; cv.height = H * dpr; cx.scale(dpr, dpr);
+  const bottlePath = new Path2D('M125 30 L175 30 L175 95 C175 125 230 130 230 170 L230 390 Q230 405 215 405 L85 405 Q70 405 70 390 L70 170 C70 130 125 125 125 95 Z');
+  let fluid = 'liquid', auto = true, zones = false, glitchSeed = [], glitchT = 0;
+  seg($('#fluidSeg'), b => { fluid = b.dataset.f; $('#fluidState').textContent = b.textContent; });
+  $('#levelIn').oninput = () => { auto = false; syncAuto(); };
+  function syncAuto() {
+    $('#autoBtn').setAttribute('aria-pressed', String(auto));
+    $('#autoBtn').textContent = 'Svuota/riempi automatico: ' + (auto ? 'on' : 'off');
+    $('#levelOut').textContent = auto ? 'Auto' : $('#levelIn').value + '%';
+  }
+  $('#autoBtn').onclick = () => { auto = !auto; syncAuto(); };
+  $('#zonesBtn').onclick = () => { zones = !zones; $('#zonesBtn').setAttribute('aria-pressed', String(zones)); $('#zonesBtn').textContent = zones ? 'Nascondi le zone' : 'Mostra le zone'; };
+  function drawBottle(t) {
+    let level = auto ? 0.5 + 0.42 * Math.sin(t * 0.7) : +$('#levelIn').value / 100;
+    if (auto) $('#levelIn').value = Math.round(level * 100);
+    const top = 30, bottom = 405, ly = bottom - level * (bottom - top);
+    cx.clearRect(0, 0, W, H);
+    cx.fillStyle = '#000000'; cx.fillRect(0, 0, W, H);
+    cx.save(); cx.clip(bottlePath);
+    cx.fillStyle = 'rgba(255,255,255,0.08)'; cx.fillRect(0, 0, W, H);           // vetro satinato
+    const wave = x => ly + Math.sin(x * 0.045 + t * 2.4) * 5 + Math.sin(x * 0.02 - t * 1.3) * 3;
+    cx.beginPath(); cx.moveTo(60, H);
+    for (let x = 60; x <= 240; x += 4) cx.lineTo(x, fluid === 'liquid' ? wave(x) : ly);
+    cx.lineTo(240, H); cx.closePath();
+    if (fluid === 'liquid') {
+      const g = cx.createLinearGradient(0, ly, 0, bottom);
+      g.addColorStop(0, '#ffc59a'); g.addColorStop(.25, '#ff6900'); g.addColorStop(1, '#5a2500');
+      cx.fillStyle = g; cx.fill();
+      cx.fillStyle = 'rgba(255,255,255,.55)';
+      for (let i = 0; i < 14; i++) { const bx = 80 + ((i * 53) % 140), by = bottom - ((t * 40 + i * 37) % Math.max(1, bottom - ly)); cx.beginPath(); cx.arc(bx, by, 1.6 + (i % 3), 0, 7); cx.fill(); }
+    } else if (fluid === 'metal') {
+      const off = (t * 60) % 120;
+      const g = cx.createLinearGradient(off - 120, 0, off + 240, 0);
+      ['#3a3a3a', '#dddddd', '#6b6b6b', '#ffffff', '#444444', '#c4c4c4', '#3a3a3a'].forEach((c, i, a) => g.addColorStop(i / (a.length - 1), c));
+      cx.fillStyle = g; cx.fill();
+      cx.save(); cx.clip(); cx.strokeStyle = 'rgba(0,0,0,.18)';
+      for (let y = Math.floor(ly); y < bottom; y += 3) { cx.beginPath(); cx.moveTo(60, y); cx.lineTo(240, y); cx.stroke(); } cx.restore();
+    } else {
+      cx.fillStyle = '#111111'; cx.fill();
+      if (t - glitchT > 0.08 || !glitchSeed.length) {
+        glitchT = t; glitchSeed = Array.from({ length: 16 }, () => [Math.random(), Math.random(), Math.random(), Math.floor(Math.random() * 4)]);
+      }
+      cx.save(); cx.clip();
+      const cols = ['#ff6900', '#22b8f0', '#ffffff', '#888888'];
+      glitchSeed.forEach(([a, b, c, k]) => { cx.fillStyle = cols[k]; cx.globalAlpha = .85; cx.fillRect(60 + a * 150 - 40, ly + b * (bottom - ly), 40 + c * 140, 2 + c * 14); });
+      cx.globalAlpha = 1; cx.restore();
+    }
+    cx.restore();
+    // Zona A · etichetta statica
+    cx.fillStyle = '#ffffff'; cx.fillRect(95, 235, 110, 80);
+    cx.fillStyle = '#000000'; cx.textAlign = 'center';
+    cx.font = '800 22px Archivo, "Arial Narrow", sans-serif'; cx.fillText('ÆTHER', 150, 278);
+    cx.font = '600 9px "JetBrains Mono", monospace'; cx.fillText('N° 01 · 70 cl', 150, 298);
+    cx.strokeStyle = 'rgba(255,255,255,.55)'; cx.lineWidth = 1.2; cx.stroke(bottlePath);
+    if (zones) {
+      cx.setLineDash([5, 4]); cx.lineWidth = 1.5;
+      cx.strokeStyle = '#ff6900'; cx.strokeRect(91, 231, 118, 88);
+      cx.strokeStyle = '#22b8f0'; cx.stroke(bottlePath); cx.setLineDash([]);
+      cx.font = '600 10px "JetBrains Mono", monospace'; cx.textAlign = 'left';
+      cx.fillStyle = '#ff6900'; cx.fillText('A · ETICHETTA (statica)', 92, 226);
+      cx.fillStyle = '#22b8f0'; cx.fillText('B · CORPO (dinamico)', 8, 20);
+    }
+  }
+
+  /* ---------- 05 · Depth ---------- */
+  const dsvg = $('#depthSvg'), NS = 'http://www.w3.org/2000/svg';
+  (function buildHex() {
+    const s = 34, w = s * Math.sqrt(3), faces = [];
+    for (let r = -1; r < 8; r++) for (let c = -1; c < 9; c++) {
+      const x = c * w + (r % 2 ? w / 2 : 0), y = r * s * 1.5, h = w / 2;
+      const T = [x, y - s], UR = [x + h, y - s / 2], LR = [x + h, y + s / 2], B = [x, y + s], LL = [x - h, y + s / 2], UL = [x - h, y - s / 2], C = [x, y];
+      const pts = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+      faces.push(['ft', pts([T, UR, C, UL])], ['fl', pts([UL, C, B, LL])], ['fr', pts([C, UR, LR, B])]);
+    }
+    dsvg.innerHTML = faces.map(([c, p]) => '<polygon class="' + c + '" points="' + p + '"/>').join('') +
+      '<circle id="lightDot" r="7" fill="#fff"/><circle id="lightHalo" r="16" fill="none" stroke="#fff" stroke-opacity=".4"/>';
+  })();
+  let inv = false;
+  function depth(deg) {
+    const a = deg * Math.PI / 180, L = [Math.cos(a), Math.sin(a)];
+    const n = { ft: [0, -1], fl: [-0.866, 0.5], fr: [0.866, 0.5] };
+    const shade = {};
+    for (const k in n) {
+      let b = 0.5 + 0.48 * (n[k][0] * L[0] + n[k][1] * L[1]);
+      if (inv) b = 1 - b;
+      const v = Math.round(18 + b * 222); shade[k] = 'rgb(' + v + ',' + v + ',' + v + ')';
+    }
+    dsvg.querySelectorAll('polygon').forEach(p => p.setAttribute('fill', shade[p.getAttribute('class')]));
+    const r = 125;
+    ['#lightDot', '#lightHalo'].forEach(id => { const el = dsvg.querySelector(id); el.setAttribute('cx', 200 + Math.cos(a) * r * 1.3); el.setAttribute('cy', 150 + Math.sin(a) * r); });
+    $('#angOut').textContent = Math.round(deg) + '°';
+    $('#depthState').textContent = 'Lettura: ' + (inv ? 'concavo' : 'convesso');
+  }
+  $('#angIn').oninput = () => depth(+$('#angIn').value);
+  $('#invBtn').onclick = () => { inv = !inv; $('#invBtn').setAttribute('aria-pressed', String(inv)); $('#invBtn').textContent = inv ? 'Ripristina le ombre' : 'Inverti le ombre'; depth(+$('#angIn').value); };
+  $('#depthStage').addEventListener('pointermove', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    let d = Math.atan2(e.clientY - r.top - r.height / 2, e.clientX - r.left - r.width / 2) * 180 / Math.PI;
+    d = (d + 360) % 360; $('#angIn').value = Math.round(d); depth(d);
+  });
+  depth(235);
+
+  /* ---------- 06 · Pipeline + loop ---------- */
+  const PIPE = [
+    'Photoshop · Week 2: ripresa fotografica dell’oggetto e deformazione dell’immagine. Revisione di tracciati e livelli nei file PSD/AI.',
+    'After Effects · Week 3–5: importazione e animazione del file statico; tre stili (wireframe, materiali e content); effetti, pattern e transizioni.',
+    'MadMapper · Week 6–8: applicazione visiva sull’oggetto, mapping e correzione di mapping e animazioni.',
+    'Camera · Week 11: riprese e aftermovie, la documentazione video della proiezione sull’oggetto.'
+  ];
+  seg($('#pipe'), b => $('#pipeDetail').textContent = PIPE[+b.dataset.i]);
+  $('#pipeDetail').textContent = PIPE[0];
+
+  /* ---------- 07 · Checker ---------- */
+  const st = { w: 40, h: 40, fin: 'opaco', col: 'bianco', morph: 'volumi' };
+  const PRE = {
+    guitar:  { w: 100, h: 36, fin: 'lucido', col: 'saturo', morph: 'volumi' },
+    bottle:  { w: 8, h: 30, fin: 'vetro', col: 'trasparente', morph: 'volumi' },
+    sneaker: { w: 30, h: 12, fin: 'opaco', col: 'bianco', morph: 'volumi' },
+    pack:    { w: 35, h: 30, fin: 'opaco', col: 'bianco', morph: 'volumi' },
+    bust:    { w: 30, h: 45, fin: 'opaco', col: 'bianco', morph: 'volumi' },
+    ball:    { w: 30, h: 30, fin: 'opaco', col: 'bianco', morph: 'liscia' }
+  };
+  function check() {
+    $('#cWo').textContent = st.w + ' cm'; $('#cHo').textContent = st.h + ' cm';
+    const out = [];
+    const mx = Math.max(st.w, st.h), mn = Math.min(st.w, st.h);
+    if (mx > 100) out.push(['no', 'Fuori scala: il lato maggiore è ' + mx + ' cm, il massimo è 100 cm.']);
+    else if (mx < 25 || mn < 10) out.push(['no', 'Troppo piccolo: sotto la taglia di una sneaker (circa 30 × 12 cm).']);
+    else out.push(['ok', 'Dimensioni nei limiti (' + st.w + ' × ' + st.h + ' cm).']);
+    out.push(({ opaco: ['ok', 'Finitura opaca: la luce si diffonde in modo uniforme.'],
+       satinato: ['wn', 'Satinato: possibile hotspot. Provalo sotto il proiettore prima di confermarlo.'],
+       lucido: ['no', 'Lucido: riflette il bulbo del proiettore e rompe l’illusione.'],
+       cromo: ['no', 'Cromo/specchio: rimanda la luce altrove, sull’oggetto non resta immagine.'],
+       vetro: ['no', 'Vetro: la luce lo attraversa invece di fermarsi sulla superficie.'] })[st.fin]);
+    out.push(({ bianco: ['ok', 'Bianco: massima riflettanza, i colori proiettati restano fedeli.'],
+       grigio: ['ok', 'Grigio chiaro: buona riflettanza, contrasto leggermente più morbido.'],
+       saturo: ['no', 'Colore saturo: filtra la luce e altera tutta la palette proiettata.'],
+       nero: ['no', 'Nero: assorbe la luce, il contrasto si annulla.'],
+       trasparente: ['no', 'Trasparente: non c’è superficie su cui fermare la luce.'] })[st.col]);
+    out.push(({ volumi: ['ok', 'Volumi e spigoli chiari: ci sono riferimenti da tracciare.'],
+       scomparti: ['ok', 'Scomparti leggibili: zone pronte per la maschera UV.'],
+       liscia: ['no', 'Superficie liscia senza spigoli: la maschera non ha riferimenti.'] })[st.morph]);
+    const bad = out.some(o => o[0] === 'no'), warn = out.some(o => o[0] === 'wn');
+    const big = $('#vBig');
+    big.className = 'big ' + (bad ? 'no' : warn ? 'wn' : 'ok');
+    big.textContent = bad ? 'Bocciato' : warn ? 'Da testare' : 'Approvato';
+    $('#vSub').textContent = bad ? 'Cerca una variante opaca e chiara dello stesso concept.' : warn ? 'Porta l’oggetto in aula e lo testiamo al buio.' : 'Portalo alla Week 2.';
+    $('#vList').innerHTML = out.map(([k, t]) => '<li><span class="' + k + '">' + (k === 'ok' ? 'OK' : k === 'wn' ? 'TEST' : 'NO') + '</span><span></span></li>').join('');
+    $$('#vList li span:last-child').forEach((s, i) => s.textContent = out[i][1]);
+  }
+  $('#cW').oninput = () => { st.w = +$('#cW').value; clearPreset(); check(); };
+  $('#cH').oninput = () => { st.h = +$('#cH').value; clearPreset(); check(); };
+  $$('.seg[data-k]').forEach(c => seg(c, b => { st[c.dataset.k] = b.dataset.v; clearPreset(); check(); }));
+  function clearPreset() { $$('#presets button').forEach(b => b.setAttribute('aria-pressed', 'false')); }
+  seg($('#presets'), b => {
+    Object.assign(st, PRE[b.dataset.p]);
+    $('#cW').value = st.w; $('#cH').value = st.h;
+    $$('.seg[data-k]').forEach(c => setSeg(c, 'v', st[c.dataset.k]));
+    check();
+  });
+  check();
+
+  /* ---------- loop di animazione ---------- */
+  const t0 = performance.now();
+  (function frame(now) {
+    const t = (now - t0) / 1000;
+    if (slides[3].classList.contains('active') || handout) drawBottle(reduced ? 0 : t);
+    requestAnimationFrame(frame);
+  })(t0);
+  drawBottle(0);
+
+  /* ---------- avvio ---------- */
+  const m = /^#s(\d+)$/.exec(location.hash || '');
+  go(m ? (+m[1] - 1) : 0);
+  if (location.hash === '#dispensa') setHandout(true);
+})();
+</script>
+</body>
+</html>
