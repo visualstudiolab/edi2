@@ -32,7 +32,7 @@ a{color:var(--fg);text-decoration-color:var(--orange);text-underline-offset:3px}
 
 /* ---------- Deck ---------- */
 #deck{position:relative;height:100%}
-.slide{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);color:var(--fg);padding:clamp(28px,6vh,72px) clamp(16px,5vw,72px) 110px;
+.slide{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);color:var(--fg);padding:clamp(28px,6vh,72px) clamp(16px,5vw,72px) 76px;
   opacity:0;visibility:hidden;transform:translateX(2%);transition:opacity .45s ease,transform .55s cubic-bezier(.2,.7,.2,1),visibility 0s .55s}
 .slide.past{transform:translateX(-2%)}
 .slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .55s cubic-bezier(.2,.7,.2,1),visibility 0s}
@@ -171,15 +171,25 @@ input[type=range]{width:100%;accent-color:var(--orange);min-width:0}
 /* ---------- Navigazione ---------- */
 .progress{position:fixed;left:0;right:0;top:0;height:3px;z-index:20}
 .progress span{display:block;height:100%;background:var(--orange);width:0;transition:width .5s ease}
-.hud{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px clamp(16px,3vw,28px) calc(10px + env(safe-area-inset-bottom,0px));
-  background:var(--black);border-top:1px solid var(--g2);color:var(--white);font-size:1.1rem}
-.hud button{background:transparent;border:2px solid var(--g6);border-radius:999px;padding:.2em .95em;cursor:pointer;color:var(--white)}
-.hud button:hover{border-color:var(--white)}
-.hud button[aria-pressed="true"]{background:var(--white);color:var(--black);border-color:var(--white)}
-.hud #prev,.hud #next{width:2.2em;height:2.2em;padding:0;border-radius:50%}
-.hud .count{font:600 .85rem var(--mono);font-variant-numeric:tabular-nums}
-.hud .ttl{color:var(--g8);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (max-width:620px){.hud .opt{display:none}}
+/* strumenti in alto a destra, frecce ai bordi e contatore visibili solo muovendo il mouse */
+.tools{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:20;display:flex;flex-direction:column;gap:8px}
+.tools button{width:38px;height:38px;padding:0;border-radius:50%;border:1.5px solid var(--g2);background:rgba(0,0,0,.55);color:var(--white);display:grid;place-items:center;cursor:pointer;opacity:.5;transition:opacity .2s,border-color .2s}
+.tools button:hover,.tools button:focus-visible{opacity:1;border-color:var(--white)}
+.tools button[aria-pressed="true"]{opacity:1;background:var(--orange);border-color:var(--orange)}
+.edge{position:fixed;top:50%;transform:translateY(-50%);z-index:15;width:52px;height:110px;padding:0;border:0;background:transparent;color:var(--white);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .3s}
+.edge.prev{left:0}.edge.next{right:0}
+body.show-nav .edge{opacity:.55}
+.edge:hover,.edge:focus-visible{opacity:1!important}
+.edge:disabled{visibility:hidden}
+.count{position:fixed;left:18px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;font:600 .72rem var(--mono);color:var(--g8);font-variant-numeric:tabular-nums;opacity:0;transition:opacity .3s;pointer-events:none}
+body.show-nav .count{opacity:1}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (min-width:700px){.slide{padding-right:max(clamp(16px,5vw,72px),70px)}}
+@media (max-width:699px){
+  .tools{flex-direction:row}
+  .tools .opt{display:none}
+  .slide{padding-top:68px}
+}
 /* modalità dispensa: tutte le slide una sotto l'altra, pagina che scorre */
 body.handout{overflow-y:auto}
 body.handout #deck{height:auto}
@@ -187,14 +197,13 @@ body.handout .slide{position:relative;inset:auto;opacity:1;visibility:visible;tr
   padding-block:clamp(48px,9vh,96px);border-bottom:1px solid var(--g2)}
 body.handout .slide:last-child{padding-bottom:140px}
 body.handout .inner{min-height:0}
-body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn{display:none}
+body.handout .edge,body.handout #notesBtn,body.handout #fsBtn{display:none}
 .only-touch{display:none}
 @media (hover:none) and (pointer:coarse){
   .only-keys{display:none!important}
   .only-touch{display:revert}
-  .hud{gap:8px}
-  .hud button{min-height:44px}
-  .hud #prev,.hud #next{width:48px;height:48px;background:var(--orange);border-color:var(--orange)}
+  .edge{opacity:.5;top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px));transform:none;width:48px;height:48px}
+  .count{opacity:1;left:50%;transform:translateX(-50%)}
   #depthStage{touch-action:none}
 }
 .swipe-hint{color:var(--muted)}
@@ -239,7 +248,7 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
         <div class="who"><div>Docente<b>Corrado Santoro</b></div><div>Lezione<b>01 / Introduzione</b></div></div>
         <p class="focus"><b>Focus del corso:</b> abbandonare il frame 16:9. L'inquadratura non è più la composition di After Effects, ma l'oggetto fisico nello spazio reale.</p>
         <p class="hint only-keys">Naviga con <kbd>←</kbd> <kbd>→</kbd> o <kbd>spazio</kbd> · <kbd>G</kbd> indice · <kbd>N</kbd> note · <kbd>F</kbd> schermo intero · <kbd>D</kbd> dispensa</p>
-        <p class="hint only-touch swipe-hint"><span class="swipe-ico" aria-hidden="true">⟵ ⟶</span> Scorri col dito per cambiare slide, oppure usa le frecce in basso. <b>Indice</b> per saltare a una slide, <b>Dispensa</b> per leggerle tutte di seguito.</p>
+        <p class="hint only-touch swipe-hint"><span class="swipe-ico" aria-hidden="true">⟵ ⟶</span> Scorri col dito per cambiare slide. In alto a destra trovi l'indice e la dispensa, con tutte le slide di seguito.</p>
       </div>
     </div>
     <div class="tool">
@@ -545,16 +554,16 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
 
 </main>
 
-<nav class="hud" aria-label="Navigazione slide">
-  <button type="button" id="prev" aria-label="Slide precedente">←</button>
-  <span class="count" id="count">01 / 09</span>
-  <button type="button" id="next" aria-label="Slide successiva">→</button>
-  <span class="ttl" id="ttl"></span>
-  <button type="button" id="ovBtn">Indice</button>
-  <button type="button" id="handoutBtn" aria-pressed="false">Dispensa</button>
-  <button type="button" class="opt" id="notesBtn" aria-pressed="false">Note</button>
-  <button type="button" class="opt" id="fsBtn">Schermo intero</button>
+<nav class="tools" aria-label="Strumenti">
+  <button type="button" id="ovBtn" title="Indice (G)" aria-label="Indice"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5"/><rect x="13.5" y="4" width="6.5" height="6.5"/><rect x="4" y="13.5" width="6.5" height="6.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5"/></svg></button>
+  <button type="button" id="handoutBtn" title="Dispensa (D)" aria-label="Dispensa" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M9 11h6M9 15h6M9 19h3"/></svg></button>
+  <button type="button" class="opt" id="notesBtn" title="Note per il docente (N)" aria-label="Note per il docente" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H10l-4 4v-4H4z"/></svg></button>
+  <button type="button" class="opt" id="fsBtn" title="Schermo intero (F)" aria-label="Schermo intero"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
 </nav>
+<button type="button" class="edge prev" id="prev" aria-label="Slide precedente"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+<button type="button" class="edge next" id="next" aria-label="Slide successiva"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+<span class="count" id="count" aria-hidden="true">01 / 09</span>
+<span class="sr-only" id="ttl" aria-live="polite"></span>
 
 <div class="overlay" id="overview" hidden>
   <button type="button" class="close" id="ovClose">Chiudi · Esc</button>
@@ -575,6 +584,8 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
 
   /* ---------- Navigazione ---------- */
   let handout = false;
+  const ICON_DOC = $('#handoutBtn').innerHTML, ICON_SLIDES = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="12"/><path d="M8 21h8M12 17v4"/></svg>';
+  function closeNotes() { if ($('#notes')) $('#notes').hidden = true; if ($('#notesBtn')) $('#notesBtn').setAttribute('aria-pressed', 'false'); }
   function go(n) {
     n = Math.max(0, Math.min(N - 1, n));
     if (handout) { slides[n].scrollIntoView({ behavior: reducedNav ? 'auto' : 'smooth' }); mark(n); return; }
@@ -588,7 +599,8 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
     $('#count').textContent = pad(n + 1) + ' / ' + pad(N);
     $('#ttl').textContent = slides[n].dataset.title;
     $('#prog').style.width = ((n + 1) / N * 100) + '%';
-    $('#notesText').textContent = slides[n].dataset.notes || 'Nessuna nota per questa slide.';
+    $('#prev').disabled = n === 0; $('#next').disabled = n === N - 1;
+    if ($('#notesText')) $('#notesText').textContent = slides[n].dataset.notes || 'Nessuna nota per questa slide.';
     try { history.replaceState(null, '', '#s' + (n + 1)); } catch (e) {}
     const h = slides[n].dataset.enter; if (h && enterHooks[h]) enterHooks[h]();
     $$('#ovGrid button').forEach((b, k) => b.classList.toggle('cur', k === n));
@@ -612,8 +624,10 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
     handout = on;
     document.body.classList.toggle('handout', on);
     $('#handoutBtn').setAttribute('aria-pressed', String(on));
-    $('#handoutBtn').textContent = on ? 'Torna alle slide' : 'Dispensa';
-    $('#notes').hidden = true; $('#notesBtn').setAttribute('aria-pressed', 'false');
+    $('#handoutBtn').innerHTML = on ? ICON_SLIDES : ICON_DOC;
+    $('#handoutBtn').title = on ? 'Torna alle slide (D)' : 'Dispensa (D)';
+    $('#handoutBtn').setAttribute('aria-label', on ? 'Torna alle slide' : 'Dispensa');
+    closeNotes();
     if (on) {
       slides.forEach(s => { s.inert = false; s.removeAttribute('aria-hidden'); s.classList.remove('past'); s.classList.add('active'); });
       try { history.replaceState(null, '', '#dispensa'); } catch (e) {}
@@ -628,7 +642,7 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
   document.addEventListener('keydown', e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const t = e.target;
-    if (e.key === 'Escape') { $('#overview').hidden = true; $('#notes').hidden = true; $('#notesBtn').setAttribute('aria-pressed', 'false'); return; }
+    if (e.key === 'Escape') { $('#overview').hidden = true; closeNotes(); return; }
     if (isField(t)) return;
     if (e.key === 'd' || e.key === 'D') { setHandout(!handout); return; }
     if (handout) { if (e.key === 'g' || e.key === 'G' || e.key === 'o') toggleOverview(); return; }
@@ -659,12 +673,18 @@ body.handout #prev,body.handout #next,body.handout #notesBtn,body.handout #fsBtn
     ovGrid.appendChild(b);
   });
   function toggleOverview() { const o = $('#overview'); o.hidden = !o.hidden; if (!o.hidden) ovGrid.children[cur].focus(); }
-  function toggleNotes() { const n = $('#notes'); n.hidden = !n.hidden; $('#notesBtn').setAttribute('aria-pressed', String(!n.hidden)); }
+  function toggleNotes() { const n = $('#notes'); if (!n) return; n.hidden = !n.hidden; $('#notesBtn').setAttribute('aria-pressed', String(!n.hidden)); }
   async function toggleFs() {
     try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) {}
   }
   $('#ovBtn').onclick = toggleOverview; $('#ovClose').onclick = toggleOverview;
-  $('#notesBtn').onclick = toggleNotes; $('#fsBtn').onclick = toggleFs;
+  if ($('#notesBtn')) $('#notesBtn').onclick = toggleNotes;
+  $('#fsBtn').onclick = toggleFs;
+  let navT;
+  document.addEventListener('mousemove', () => {
+    document.body.classList.add('show-nav');
+    clearTimeout(navT); navT = setTimeout(() => document.body.classList.remove('show-nav'), 2000);
+  });
   $('#toChecker').onclick = () => go(slides.indexOf($('#checker')));
   $('#toStart').onclick = () => go(0);
 
