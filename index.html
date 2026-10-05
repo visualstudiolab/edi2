@@ -50,11 +50,16 @@ h1 em{font-style:normal;color:var(--orange)}
 footer{margin-top:3em;font:400 .75rem var(--mono);color:var(--g6)}
 /* Bebas ha lo spazio tra le parole molto stretto: lo allarghiamo solo per il testo in Bebas */
 body{word-spacing:.16em}
-h1,h2,h3,.lede,.eyebrow,.tool-head,.lbl,.hint,.readout,.tl-scale,.count,.slider output,.menu,code,kbd,.kv dt,.spec dt,.who,.pipe button b,.crit h3,.verdict .big,.verdict-sm,.ov-grid small,.ov-grid b,.dlist time,.dlist .code,.tag,.calurl,.fname,.next-when,.stat b,.stat span,.gcd,.issues li span:first-child{word-spacing:normal}
+.nextl,.card small,footer,h1,h2,h3,.lede,.eyebrow,.tool-head,.lbl,.hint,.readout,.tl-scale,.count,.slider output,.menu,code,kbd,.kv dt,.spec dt,.who,.pipe button b,.crit h3,.verdict .big,.verdict-sm,.ov-grid small,.ov-grid b,.dlist time,.dlist .code,.tag,.calurl,.fname,.next-when,.stat b,.stat span,.gcd,.issues li span:first-child{word-spacing:normal}
 .who b{word-spacing:.16em}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.45}
+main{position:relative;z-index:1}
+.card{background:rgba(28,28,28,.95)}
+.calbox{background:rgba(28,28,28,.92)}
 </style>
 </head>
 <body>
+<canvas id="bg" aria-hidden="true"></canvas>
 <main>
   <div class="eyebrow">AA 2627 · 21V0-ABTEC38 - EDI 2</div>
   <h1>Product <em>Mapping</em></h1>
@@ -168,6 +173,61 @@ h1,h2,h3,.lede,.eyebrow,.tool-head,.lbl,.hint,.readout,.tl-scale,.count,.slider 
       pick(os);
     });
   })(CAL_DIR);
+})();
+</script>
+<script>
+/* sfondo della home: punti in movimento con riquadri di tracking e linee tra i punti vicini */
+(() => {
+  const c = document.getElementById('bg'), x = c.getContext('2d');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, raf = 0, n = 14;
+  const N = 14, LINK = 260, mouse = { x: -999, y: -999, on: false, sx: -999, sy: -999 };
+  const blobs = Array.from({ length: N }, (_, i) => ({
+    id: i + 1,
+    ax: .32 + Math.random() * .2, ay: .3 + Math.random() * .2,
+    fx: .03 + Math.random() * .05, fy: .03 + Math.random() * .05,
+    px: Math.random() * 6.28, py: Math.random() * 6.28,
+    cx: .15 + Math.random() * .7, cy: .15 + Math.random() * .7,
+    r: 14 + Math.random() * 34
+  }));
+  function size() {
+    const d = Math.min(2, window.devicePixelRatio || 1);
+    W = innerWidth; H = innerHeight;
+    n = Math.max(5, Math.min(14, Math.round(W * H / 85000)));
+    c.width = W * d; c.height = H * d; x.setTransform(d, 0, 0, d, 0, 0);
+  }
+  function pos(b, t) {
+    return [W * (b.cx + Math.sin(t * b.fx + b.px) * b.ax * .5), H * (b.cy + Math.sin(t * b.fy * 1.3 + b.py) * b.ay * .5)];
+  }
+  function frame(ms) {
+    const t = ms / 1000;
+    x.clearRect(0, 0, W, H);
+    const pts = blobs.slice(0, n).map(b => { const [px, py] = pos(b, t); return { x: px, y: py, r: b.r * (1 + .15 * Math.sin(t * .8 + b.px)), id: b.id }; });
+    if (mouse.on) {
+      mouse.sx += (mouse.x - mouse.sx) * .12; mouse.sy += (mouse.y - mouse.sy) * .12;
+      pts.push({ x: mouse.sx, y: mouse.sy, r: 22, id: 0, me: true });
+    }
+    x.lineWidth = 1;
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const a = pts[i], b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < LINK) { x.strokeStyle = 'rgba(255,255,255,' + (.42 * (1 - d / LINK)).toFixed(3) + ')'; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); }
+    }
+    x.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    pts.forEach(p => {
+      const s = p.r, col = p.me ? '#ff6900' : 'rgba(255,255,255,.85)';
+      x.strokeStyle = col; x.fillStyle = col;
+      x.strokeRect(p.x - s, p.y - s, s * 2, s * 2);
+      x.beginPath(); x.moveTo(p.x - 4, p.y); x.lineTo(p.x + 4, p.y); x.moveTo(p.x, p.y - 4); x.lineTo(p.x, p.y + 4); x.stroke();
+      x.fillText((p.me ? 'TU' : 'ID ' + String(p.id).padStart(2, '0')) + '  ' + Math.round(p.x) + ',' + Math.round(p.y), p.x - s, p.y - s - 5);
+    });
+    if (!still) raf = requestAnimationFrame(frame);
+  }
+  size();
+  addEventListener('resize', size);
+  addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { if (!mouse.on) { mouse.sx = e.clientX; mouse.sy = e.clientY; } mouse.x = e.clientX; mouse.y = e.clientY; mouse.on = true; } });
+  document.addEventListener('mouseleave', () => { mouse.on = false; });
+  document.addEventListener('visibilitychange', () => { cancelAnimationFrame(raf); if (!document.hidden && !still) raf = requestAnimationFrame(frame); });
+  if (still) frame(20000); else raf = requestAnimationFrame(frame);
 })();
 </script>
 </body>
